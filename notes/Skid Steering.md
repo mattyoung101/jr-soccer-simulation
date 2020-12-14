@@ -7,7 +7,7 @@ https://stackoverflow.com/questions/125099/formula-for-controlling-the-movement-
 *d* = distance between tracks
 
 Wo = Wc * ((0.5R+d)/0.5R)
-Wi = Wc / ((0.5R+d)/0.5R)
+Wi = Wc * ((0.5R-d)/0.5R)
 
 - Box is 0.075m wide 
 - Wheel has a radius of 0.02 (*r*) and a height of 0.01
@@ -40,11 +40,11 @@ Outputs are the roational speed of the wheels:
 
 Wc = Sc/r
 
-2. Calculate the turning circle to give the correct roational velocity:
+2. Calculate the turning circle to give the correct rotional velocity:
 
 R = (Wc * r)/a'
 
 3. Calculate the rotational speed of the two wheels:
 
 Wo = Wc * ((0.5R+d)/0.5R)
-Wi = Wc / ((0.5R+d)/0.5R)
+Wi = Wc * ((0.5R-d)/0.5R)

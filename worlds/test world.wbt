@@ -518,7 +518,7 @@ DEF B1 Robot {
     density -1
     mass 0.2
   }
-  controller "rcj_soccer_player"
+  controller "player_test"
 }
 DEF B2 Robot {
   translation 0.271657 0.0381772 0.289311
