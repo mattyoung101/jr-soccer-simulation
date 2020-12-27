@@ -130,3 +130,5 @@ dmypy.json
 
 # idek what this is
 .DS_Store
+
+#controllers/player_test/__pycache__/

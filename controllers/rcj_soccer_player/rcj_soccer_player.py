@@ -56,8 +56,8 @@ while robot.step(TIME_STEP) != -1:
         data = parse_supervisor_msg(packet)
 
         # Move only the B1 robot -- everyone else stay still
-        if name.upper() != 'B1':
-            continue
+        # if name.upper() != 'B1':
+            # continue
 
         # Get the position of our robot
         robot_pos = data[name.upper()]
@@ -90,13 +90,13 @@ while robot.step(TIME_STEP) != -1:
         # If the robot has the ball right in front of it, go forward, otherwise
         # rotate
         if degrees >= 345 or degrees <= 15:
-            left_speed = -10
-            right_speed = -10
+            left_speed = -5
+            right_speed = -5
         else:
             multiplier = -1 if degrees < 180 else 1
-            left_speed = multiplier * 10
-            right_speed = multiplier * -10
+            left_speed = multiplier * 4
+            right_speed = multiplier * -4
 
         left_motor.setVelocity(left_speed)
         right_motor.setVelocity(right_speed)
-        print('Robot Position:', robot_pos, 'Ball Position:', ball_pos, 'Angle', degrees)
+        #print('Robot Position:', robot_pos, 'Ball Position:', ball_pos, 'Angle', degrees)
