@@ -56,8 +56,8 @@ while robot.step(TIME_STEP) != -1:
         data = parse_supervisor_msg(packet)
 
         # Move only the B1 robot -- everyone else stay still
-        # if name.upper() != 'B1':
-            # continue
+        if name.upper() != 'B1':
+            continue
 
         # Get the position of our robot
         robot_pos = data[name.upper()]
