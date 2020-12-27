@@ -57,6 +57,8 @@ right_motor.setVelocity(0.0)
 rs = fsm.RobotState()
 rs.agent_name = name
 
+# TODO figure out if defender or attacker first!!!!!!!!!!
+states.attack_fsm.change_state(rs, states.StateAttackChase())
 
 while robot.step(TIME_STEP) != -1:
     # Supervisor comms stuff

@@ -24,4 +24,4 @@ class StateAttackCircle(FSMState):
     def exit(self, fsm, rs):
         print("Exiting attack circle")
 
-attack_fsm = StateMachine(StateAttackChase())
+attack_fsm = StateMachine()
