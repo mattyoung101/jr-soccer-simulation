@@ -6,12 +6,11 @@ from controller import Robot
 import struct
 import math
 import utils
+import fsm
 
 TIME_STEP = 64
 ROBOT_NAMES = ["B1", "B2", "B3", "Y1", "Y2", "Y3"]
 N_ROBOTS = len(ROBOT_NAMES)
-
-# points = [[0.46, 0.44], [-0.49, 0.407], [-0.49, -0.48], [0.42, -0.46]]
 
 def parse_supervisor_msg(packet: str) -> dict:
     # X, Z and rotation for each robot
@@ -53,33 +52,25 @@ right_motor.setPosition(float('+inf'))
 left_motor.setVelocity(0.0)
 right_motor.setVelocity(0.0)
 
-# i = 0
+
+rs = fsm.RobotState()
 
 while robot.step(TIME_STEP) != -1:
+    # Supervisor comms stuff
     if receiver.getQueueLength() > 0:
         packet = receiver.getData()
         receiver.nextPacket()
 
         data = parse_supervisor_msg(packet)
 
-        # Move only the B1 robot -- everyone else stay still
-        # if name.upper() != 'B1':
-        #     continue
+        # Update RobotState
+        rs.agent_pos = [data[name.upper()]['x'], data[name.upper()]['y']]
+        rs.ball_pos = [data['ball']['x'], data['ball']['y']]
+        rs.agent_heading = data[name.upper()]['orientation']
 
-        # Get the position of our robot
-        robot_pos = data[name.upper()]
-        # Get the position of the ball
-        ball_pos = data['ball']
-
-        robot_angle = robot_pos['orientation']
-
-        # print(f"i: {i}, x: {points[i][0]}, y: {points[i][1]}")
-
-        values = utils.move_to_point(robot_pos['x'], robot_pos['y'], ball_pos['x'], ball_pos['y'], robot_angle)
-        # values = utils.move_to_point(robot_pos['x'], robot_pos['y'], points[i][0], points[i][1], robot_angle)
+        # Test movement
+        values = utils.move_to_point(rs.agent_pos[0], rs.agent_pos[1], rs.ball_pos[0], rs.ball_pos[1], rs.agent_heading)
         
+        # Update motors
         left_motor.setVelocity(values[0][0])
         right_motor.setVelocity(values[0][1])
-        
-        # if values[1]:
-        #     i += 1
