@@ -3,9 +3,11 @@
 
 class RobotState:
     def __init__(self):
+        self.agent_name = ""
         self.agent_pos = [0, 0]
         self.agent_heading = 0
         self.ball_pos = [0, 0]
+        self.out = [[0, 0], False] # Left, Right, Flag
 
 class StateMachine:
     def __init__(self, initial_state):

@@ -7,6 +7,7 @@ import struct
 import math
 import utils
 import fsm
+import states
 
 TIME_STEP = 64
 ROBOT_NAMES = ["B1", "B2", "B3", "Y1", "Y2", "Y3"]
@@ -54,6 +55,8 @@ right_motor.setVelocity(0.0)
 
 
 rs = fsm.RobotState()
+rs.agent_name = name
+
 
 while robot.step(TIME_STEP) != -1:
     # Supervisor comms stuff
@@ -68,9 +71,9 @@ while robot.step(TIME_STEP) != -1:
         rs.ball_pos = [data['ball']['x'], data['ball']['y']]
         rs.agent_heading = data[name.upper()]['orientation']
 
-        # Test movement
-        values = utils.move_to_point(rs.agent_pos[0], rs.agent_pos[1], rs.ball_pos[0], rs.ball_pos[1], rs.agent_heading)
+        # Update state machine
+        states.attack_fsm.update(rs)
         
         # Update motors
-        left_motor.setVelocity(values[0][0])
-        right_motor.setVelocity(values[0][1])
+        left_motor.setVelocity(rs.out[0][0])
+        right_motor.setVelocity(rs.out[0][1])

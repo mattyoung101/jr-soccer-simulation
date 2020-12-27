@@ -6,7 +6,8 @@ WHEEL_SPACING = 0.085
 MOTOR_MAX_VEL = 10
 
 HEADING_KP = 1.5
-MOVE_THRESH = 0.01
+ARRIVE_THRESH = 0.05
+STOP_THRESH = 0.01
 
 def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
@@ -34,10 +35,10 @@ def calc_motors(speed, rotation):
 def move_to_point(start_x, start_y, end_x, end_y, heading):
     direction = atan2(end_y - start_y, end_x - start_x)
     distance = sqrt(pow(end_x - start_x, 2) + pow(end_y - start_y, 2))
-    if distance <= MOVE_THRESH:
-        return calc_motors(0, 0)
+    if distance <= STOP_THRESH:
+        return [calc_motors(0, 0), True]
     else:
         error = (heading + direction + pi/2) % (2*pi)
         error = error - 2*pi if error > pi else error
-        return calc_motors(0.2, HEADING_KP * error)
+        return [calc_motors(0.2, HEADING_KP * error), True if distance <= ARRIVE_THRESH else False]
 
