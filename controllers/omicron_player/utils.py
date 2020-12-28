@@ -26,10 +26,10 @@ def calc_motors(speed, rotation):
         outer_wheel = centre_wheel * ((0.5 * turning_radius + WHEEL_SPACING) / (0.5 * turning_radius))
         inner_wheel = centre_wheel * ((0.5 * turning_radius - WHEEL_SPACING) / (0.5 * turning_radius))
         if outer_wheel > MOTOR_MAX_VEL:
-            print("MOTOR OUTPUT SATURATED")
+            # print("MOTOR OUTPUT SATURATED")
             inner_wheel /= outer_wheel / MOTOR_MAX_VEL
             outer_wheel = MOTOR_MAX_VEL
-        print(f"turning: {turning_radius}, outer: {outer_wheel}, inner: {inner_wheel}")
+        # print(f"turning: {turning_radius}, outer: {outer_wheel}, inner: {inner_wheel}")
         return [outer_wheel, inner_wheel] if rotation < 0 else [inner_wheel, outer_wheel]
 
 def move_to_point(start_x, start_y, end_x, end_y, heading):
