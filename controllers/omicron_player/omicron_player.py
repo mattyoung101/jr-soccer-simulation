@@ -69,12 +69,15 @@ while robot.step(TIME_STEP) != -1:
         data = parse_supervisor_msg(packet)
 
         # Update RobotState
-        rs.agent_pos = [data[name.upper()]['x'], data[name.upper()]['y']]
-        rs.ball_pos = [data['ball']['x'], data['ball']['y']]
+        # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
+        rs.agent_pos = [-data[name.upper()]['y'], -data[name.upper()]['x']]
+        rs.ball_pos = [-data['ball']['y'], -data['ball']['x']]
         rs.agent_heading = data[name.upper()]['orientation']
 
         # Update state machine
         states.attack_fsm.update(rs)
+
+        # print(rs.agent_pos[0], rs.agent_pos[1], rs.agent_heading, rs.ball_pos[0], rs.ball_pos[1])
         
         # Update motors
         left_motor.setVelocity(rs.out[0][0])

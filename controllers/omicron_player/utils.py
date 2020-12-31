@@ -1,4 +1,5 @@
 from math import atan2, sqrt, pi
+from fsm import RobotState
 
 # CONTANTS
 WHEEL_RADIUS = 0.02
@@ -32,13 +33,16 @@ def calc_motors(speed, rotation):
         # print(f"turning: {turning_radius}, outer: {outer_wheel}, inner: {inner_wheel}")
         return [outer_wheel, inner_wheel] if rotation < 0 else [inner_wheel, outer_wheel]
 
-def move_to_point(start_x, start_y, end_x, end_y, heading):
-    direction = atan2(end_y - start_y, end_x - start_x)
-    distance = sqrt(pow(end_x - start_x, 2) + pow(end_y - start_y, 2))
+def move_to_point(rs: RobotState, end_x, end_y):
+    direction = atan2(end_y - rs.agent_pos[1], end_x - rs.agent_pos[0])
+    distance = sqrt(pow(end_x - rs.agent_pos[0], 2) + pow(end_y - rs.agent_pos[1], 2))
     if distance <= STOP_THRESH:
         return [calc_motors(0, 0), True]
     else:
-        error = (heading + direction + pi/2) % (2*pi)
+        error = (rs.agent_heading - direction) % (2*pi)
         error = error - 2*pi if error > pi else error
+        # print(f"Direction: {direction}, Heading: {heading}, Error: {error}")
         return [calc_motors(0.2, HEADING_KP * error), True if distance <= ARRIVE_THRESH else False]
+
+# def kite_point()
 
