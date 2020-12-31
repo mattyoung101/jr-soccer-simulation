@@ -6,9 +6,14 @@ WHEEL_RADIUS = 0.02
 WHEEL_SPACING = 0.085
 MOTOR_MAX_VEL = 10
 
+MOVE_SPEED = 0.2
+
 HEADING_KP = 1.5
 ARRIVE_THRESH = 0.05
 STOP_THRESH = 0.01
+
+KITE_RADIUS_KP = 5
+KITE_HEADING_KP = 2
 
 def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
@@ -42,7 +47,32 @@ def move_to_point(rs: RobotState, end_x, end_y):
         error = (rs.agent_heading - direction) % (2*pi)
         error = error - 2*pi if error > pi else error
         # print(f"Direction: {direction}, Heading: {heading}, Error: {error}")
-        return [calc_motors(0.2, HEADING_KP * error), True if distance <= ARRIVE_THRESH else False]
+        return [calc_motors(MOVE_SPEED, HEADING_KP * error), True if distance <= ARRIVE_THRESH else False]
 
-# def kite_point()
+def kite_point(rs: RobotState, centre_x, centre_y, radius, reversed):
+    reverse = 1 if reversed else -1
+
+    direction = ((5*pi)/2 - atan2(centre_y - rs.agent_pos[1], centre_x - rs.agent_pos[0])) % (2*pi)
+    direction = direction - 2*pi if direction > pi else direction
+
+    bot_heading = ((5*pi)/2 - rs.agent_heading) % (2*pi)
+    bot_heading = bot_heading - 2*pi if bot_heading > pi else bot_heading
+
+    distance = sqrt(pow(centre_x - rs.agent_pos[0], 2) + pow(centre_y - rs.agent_pos[1], 2))
+
+    heading_error = (direction + pi/2 * reverse) - bot_heading
+    heading_error = heading_error - 2*reverse*pi if abs(heading_error) > pi else heading_error
+
+    distance_error = distance - radius
+
+    # print(direction, bot_heading, heading_error)
+    print(heading_error, distance_error)
+
+    if abs(heading_error) > pi/2:
+        print("pog1")
+        return [calc_motors(MOVE_SPEED, HEADING_KP * heading_error), False]
+    else:
+        print("pog2")
+        return [calc_motors(MOVE_SPEED, -reverse * KITE_RADIUS_KP * distance_error + KITE_HEADING_KP * heading_error), False]
+
 
