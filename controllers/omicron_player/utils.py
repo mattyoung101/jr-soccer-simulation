@@ -68,9 +68,9 @@ def kite_point(rs: RobotState, centre_x, centre_y, radius, reversed):
     # print(direction, bot_heading, heading_error)
     # print(heading_error, distance_error)
 
-    if abs(heading_error) > pi/2:
-        return [calc_motors(MOVE_SPEED, HEADING_KP * heading_error), False]
-    else:
-        return [calc_motors(MOVE_SPEED, -reverse * KITE_RADIUS_KP * distance_error + KITE_HEADING_KP * heading_error), False]
+    # if abs(heading_error) > pi/2:
+    #     return [calc_motors(MOVE_SPEED, HEADING_KP * heading_error), False]
+    # else:
+    return [calc_motors(MOVE_SPEED, -reverse * KITE_RADIUS_KP * distance_error + KITE_HEADING_KP * heading_error), False]
 
 

@@ -5,8 +5,8 @@ from math import sqrt, copysign, atan2, pi
 CHASE_TO_CIRCLE = 0.4
 CIRCLE_TO_CHASE = 0.5
 CIRCLE_OFFSET = 0.15
-FORWARD_ANGLE_ENTER = pi/7
-FORWARD_ANGLE_EXIT = pi/6
+FORWARD_ANGLE_ENTER = pi/8
+FORWARD_ANGLE_EXIT = pi/7
 AIM_TO_CIRCLE = 0.5
 YEET_TO_AIM = 0.5
 
@@ -30,7 +30,7 @@ class StateAttackCircle(FSMState):
         direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
         # Circle the ball based on which sie the robot approaches it\
         rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, delta_x > 0)
-        if (direction > pi/2 - FORWARD_ANGLE_ENTER and direction < pi/2 + FORWARD_ANGLE_ENTER): # need to check if behind ball
+        if (direction > pi/2 - FORWARD_ANGLE_ENTER and direction < pi/2 + FORWARD_ANGLE_ENTER):
             fsm.change_state(rs, StateAttackYeet())
             return
         if distance >= CIRCLE_TO_CHASE:
