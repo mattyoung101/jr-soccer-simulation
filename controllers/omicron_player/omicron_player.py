@@ -75,8 +75,8 @@ while robot.step(TIME_STEP) != -1:
         rs.agent_heading = data[name.upper()]['orientation']
 
         # Update state machine
-        # states.attack_fsm.update(rs)
-        rs.out = utils.kite_point(rs, 0, 0, 0.2, False)
+        states.attack_fsm.update(rs)
+        # rs.out = utils.kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], 0.1, False)
 
         # print(rs.agent_pos[0], rs.agent_pos[1], rs.agent_heading, rs.ball_pos[0], rs.ball_pos[1])
         # direction = math.atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])

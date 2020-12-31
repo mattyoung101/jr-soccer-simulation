@@ -1,11 +1,12 @@
 from fsm import RobotState, StateMachine, FSMState
-from utils import move_to_point
+from utils import move_to_point, kite_point
 from math import sqrt, copysign, atan2, pi
 
 CHASE_TO_CIRCLE = 0.4
 CIRCLE_TO_CHASE = 0.5
-CIRCLE_OFFSET = 0.2
-CIRCLE_TO_AIM_CONE = pi/6
+CIRCLE_OFFSET = 0.15
+FORWARD_ANGLE_ENTER = pi/7
+FORWARD_ANGLE_EXIT = pi/6
 AIM_TO_CIRCLE = 0.5
 YEET_TO_AIM = 0.5
 
@@ -26,11 +27,11 @@ class StateAttackCircle(FSMState):
     def update(self, fsm, rs):
         delta_x = rs.ball_pos[0] - rs.agent_pos[0]
         distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
-        # Move next to the ball (on the side of the robot) based on which team it is on
-        target_x = -CIRCLE_OFFSET * copysign(1, delta_x) + rs.ball_pos[0]
-        rs.out = move_to_point(rs, target_x, rs.ball_pos[1])
-        if rs.out[1] or rs.agent_pos[1] < rs.ball_pos[1]: # need to check if behind ball
-            fsm.change_state(rs, StateAttackAim())
+        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
+        # Circle the ball based on which sie the robot approaches it\
+        rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, delta_x > 0)
+        if (direction > pi/2 - FORWARD_ANGLE_ENTER and direction < pi/2 + FORWARD_ANGLE_ENTER): # need to check if behind ball
+            fsm.change_state(rs, StateAttackYeet())
             return
         if distance >= CIRCLE_TO_CHASE:
             fsm.change_state(rs, StateAttackChase())
@@ -38,31 +39,15 @@ class StateAttackCircle(FSMState):
     def exit(self, fsm, rs):
         print("Exiting attack circle")
 
-class StateAttackAim(FSMState):
-    def enter(self, fsm, rs):
-        print("Entering attack aim")
-    def update(self, fsm, rs):
-        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
-        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
-        target_y = rs.ball_pos[1] - CIRCLE_OFFSET
-        rs.out = move_to_point(rs, rs.ball_pos[0], target_y)
-        if rs.out[1]:
-            fsm.change_state(rs, StateAttackYeet())
-            return
-        if distance >= CIRCLE_TO_CHASE or (direction < pi/2 - CIRCLE_TO_AIM_CONE and direction < pi/2 + CIRCLE_TO_AIM_CONE):
-            fsm.change_state(rs, StateAttackCircle())
-            return
-    def exit(self, fsm, rs):
-        print("Exiting attack aim")
-
 class StateAttackYeet(FSMState):
     def enter(self, fsm, rs):
         print("Entering attack yeet")
     def update(self, fsm, rs):
         distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
+        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
         rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1])
-        if distance >= CIRCLE_TO_CHASE or rs.agent_pos[1] > rs.ball_pos[1]:
-            fsm.change_state(rs, StateAttackAim())
+        if distance >= CIRCLE_TO_CHASE or (direction < pi/2 - FORWARD_ANGLE_EXIT and direction < pi/2 + FORWARD_ANGLE_EXIT):
+            fsm.change_state(rs, StateAttackCircle())
             return
 
 attack_fsm = StateMachine()
