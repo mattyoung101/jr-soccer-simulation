@@ -1,5 +1,7 @@
-from math import atan2, sqrt, pi
+from math import atan2, sqrt, pi, copysign
 from fsm import RobotState
+
+DEBUG = True
 
 # CONTANTS
 WHEEL_RADIUS = 0.02
@@ -18,6 +20,16 @@ KITE_THRESH = 0.05
 
 def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
+
+def sign(val):
+    return copysign(1, val)
+
+def smallest_angle_between(angle1, angle2):
+    return (angle1 - angle2 + pi) * (2*pi) - pi
+
+def log(string, rs: RobotState):
+    if DEBUG:
+        print(f"{rs.agent_name}: {string}")
 
 # Calculates the speed to run motors given a movement and rotation speed
 # Returns motor values in the format [left, right]
