@@ -82,8 +82,11 @@ while robot.step(TIME_STEP) != -1:
         # rs.out = utils.kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], 0.1, False)
 
         # print(rs.agent_pos[0], rs.agent_pos[1], rs.agent_heading, rs.ball_pos[0], rs.ball_pos[1])
-        # direction = math.atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
-        # print(direction)
+        direction = math.atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
+        goal_angle = math.atan2(0.85 - rs.agent_pos[1], -rs.agent_pos[0])
+        print(direction, goal_angle, direction - goal_angle)
+        # if (abs(direction-goal_angle) < 0.15):
+        #     print("PGOGGERS")
         
         # Update motors
         left_motor.setVelocity(rs.out[0][0])

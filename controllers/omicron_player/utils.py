@@ -14,6 +14,7 @@ STOP_THRESH = 0.01
 
 KITE_RADIUS_KP = 10
 KITE_HEADING_KP = 1.5
+KITE_THRESH = 0.05
 
 def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
@@ -65,12 +66,9 @@ def kite_point(rs: RobotState, centre_x, centre_y, radius, reversed):
 
     distance_error = distance - radius
 
-    # print(direction, bot_heading, heading_error)
-    # print(heading_error, distance_error)
-
-    # if abs(heading_error) > pi/2:
-    #     return [calc_motors(MOVE_SPEED, HEADING_KP * heading_error), False]
-    # else:
-    return [calc_motors(MOVE_SPEED, -reverse * KITE_RADIUS_KP * distance_error + KITE_HEADING_KP * heading_error), False]
+    if abs(heading_error) > pi/2:
+        return [calc_motors(MOVE_SPEED, HEADING_KP * heading_error), True if distance_error < KITE_THRESH else False]
+    else:
+        return [calc_motors(MOVE_SPEED, -reverse * KITE_RADIUS_KP * distance_error + KITE_HEADING_KP * heading_error), True if distance_error < KITE_THRESH else False]
 
 
