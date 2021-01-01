@@ -1,12 +1,8 @@
 import math
 
 
-class ProgressChecker(object):
-    def __init__(
-            self,
-            steps: int,
-            threshold: float
-    ):
+class ProgressChecker:
+    def __init__(self, steps: int, threshold: float):
         self.steps = steps
         self.threshold = threshold
         self.reset()
@@ -24,7 +20,6 @@ class ProgressChecker(object):
         it can be used when computing whether the given object has made
         progress.
         """
-
         # If the track function gets called for the first time (i.e. we do not
         # remember the previous position), store the current position as the
         # previous one
@@ -43,7 +38,7 @@ class ProgressChecker(object):
 
         self.prev_position = position
 
-    def is_progress(self, robot=None):
+    def is_progress(self, robot=None) -> bool:
         """
         Detect whether the object which is being tracked has made some
         "progress". In other words, check whether we have tracked enough
@@ -51,15 +46,14 @@ class ProgressChecker(object):
 
         Args:
             robot (optional): name of robot, used only for debugging purposes.
-
         """
         s = sum(self.samples)
 
-        # if robot:
-        #     print(f'Robot {robot} iterator: {self.iterator}, '
-        #           f's: {s}, thr: {self.threshold}')
-        # else:
-        #     print(f'iterator: {self.iterator}, s: {s}, thr: {self.threshold}')
+        if robot:
+            print(f'Robot {robot} iterator: {self.iterator}, '
+                  f's: {s}, thr: {self.threshold}')
+        else:
+            print(f'iterator: {self.iterator}, s: {s}, thr: {self.threshold}')
 
         # We we haven't tracked at least as many samples as the number of
         # steps, our default position is "benefit of doubt": we assume enough

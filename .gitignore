@@ -132,3 +132,6 @@ dmypy.json
 .DS_Store
 
 #controllers/player_test/__pycache__/
+
+.*.wbproj
+worlds/.test world.wbproj
