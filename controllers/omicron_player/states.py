@@ -8,7 +8,7 @@ GOAL_DIST = 0.85
 CHASE_TO_CIRCLE = 0.3
 CIRCLE_TO_CHASE = 0.4
 CIRCLE_OFFSET = 0.15
-FORWARD_ANGLE_ENTER = 0.15
+FORWARD_ANGLE_ENTER = 0.2
 FORWARD_ANGLE_EXIT = 1
 AIM_TO_CIRCLE = 0.5
 YEET_TO_AIM = 0.3
@@ -28,11 +28,14 @@ class StateAttackCircle(FSMState):
     def enter(self, fsm, rs):
         print("Entering attack circle")
     def update(self, fsm, rs):
+        delta_x = rs.ball_pos[0] - rs.agent_pos[0]
         distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
         goal_angle = atan2(GOAL_DIST - rs.agent_pos[1], -rs.agent_pos[0])
         direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0]) - goal_angle
+        direction = (direction + pi) % (2*pi) - pi
+        print(direction)
         # Circle the ball based on which side the robot approaches it
-        rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, abs(direction) < pi/2)
+        rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, copysign(1, direction) < 0)
         if (abs(direction) < FORWARD_ANGLE_ENTER):
             fsm.change_state(rs, StateAttackYeet())
             return
