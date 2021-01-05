@@ -61,6 +61,8 @@ if rs.agent_name[1] == '1':
     states.attack_fsm.change_state(rs, states.StateAttackChase())
 elif rs.agent_name[1] == '2':
     states.attack_fsm.change_state(rs, states.StateAttackHover())
+elif rs.agent_name[1] == '3':
+    states.defend_fsm.change_state(rs, states.StateDefendIdle())
 
 while robot.step(TIME_STEP) != -1:
     # Supervisor comms stuff
@@ -70,7 +72,7 @@ while robot.step(TIME_STEP) != -1:
 
         data = parse_supervisor_msg(packet)
 
-        # if name.upper() != 'B1':
+        # if name.upper() != 'B3':
         #     continue
 
         # Update RobotState
@@ -82,6 +84,8 @@ while robot.step(TIME_STEP) != -1:
         # Update state machine
         if rs.agent_name[1] in ['1', '2']:
             states.attack_fsm.update(rs)
+        elif rs.agent_name[1] == '3':
+            states.defend_fsm.update(rs)
         
         # Update motors
         left_motor.setVelocity(rs.out[0][0])

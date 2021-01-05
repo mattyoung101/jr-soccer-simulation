@@ -1,5 +1,5 @@
 from fsm import RobotState, StateMachine, FSMState
-from utils import move_to_point, kite_point, sign, log
+from utils import move_to_point, kite_point, sign, log, calc_motors, smallest_angle_between
 from math import sqrt, copysign, atan2, pi
 
 # === PARAMETERS === #
@@ -9,8 +9,8 @@ GOAL_DIST = 0.85
 
 # Striker (Attack) FSM
 HOVER_DIST = 0.5
-BALL_TOO_FAR = 0.4
-PUSHER_THRESH = 0.15
+BALL_TOO_FAR = 0.3
+PUSHER_THRESH = 0.10
 BEHIND_THRESH = pi * 2/3
 
 CHASE_TO_CIRCLE = 0.3 # TODO GIVE THESE LESS SHITTY NAMES
@@ -22,7 +22,8 @@ AIM_TO_CIRCLE = 0.5
 YEET_TO_AIM = 0.3
 
 # Goalie (Defend) FSM
-FISH = True
+DEFEND_DIST = 0.2
+IDLE_KP = 1.5
 
 
 # === ATTACK FSM === #
@@ -46,7 +47,8 @@ class StateAttackPush(FSMState):
         rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1])
         if rs.ball_pos[1] > PUSHER_THRESH or distance > BALL_TOO_FAR:
             fsm.change_state(rs, StateAttackHover())
-        if -BEHIND_THRESH - pi/2 >= direction >= BEHIND_THRESH + pi/2:
+        if (-BEHIND_THRESH - pi/2) >= direction >= (BEHIND_THRESH - pi/2):
+            print("pog")
             fsm.change_state(rs, StateAttackChase())
     def exit(self, fsm, rs):
         log("Exiting attack push", rs)
@@ -103,5 +105,17 @@ attack_fsm = StateMachine()
 
 
 # === DEFEND FSM === #
+
+class StateDefendIdle(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering defend idle", rs)
+    def update(self, fsm, rs):
+        rs.out = move_to_point(rs, 0, DEFEND_DIST - GOAL_DIST)
+        if rs.out[1]:
+            direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
+            error = smallest_angle_between(direction, rs.agent_heading)
+            rs.out = [calc_motors(0, IDLE_KP * error), True]
+    def exit(self, fsm, rs):
+        log("Exiting defend idle", rs)
 
 defend_fsm = StateMachine()
