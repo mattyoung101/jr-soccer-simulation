@@ -2,6 +2,9 @@
 # on our RoboCup Jr Open/Lightweight robots.
 
 class RobotState:
+    """
+    The state of the robot in the world (simplified). Includes "output" such as motor values.
+    """
     def __init__(self):
         self.agent_name = ""
         self.agent_pos = [0, 0]
@@ -10,16 +13,32 @@ class RobotState:
         self.out = [[0, 0], False] # Left, Right, Flag
 
 class StateMachine:
+    """
+    A very simple finite state machine.
+    """
+
     def __init__(self):
+        """
+        Initialises the FSM. The state is initially set to null.
+        """
         self.current_state = None
 
     def update(self, rs: RobotState):
+        """
+        Ticks the FSM. Make sure that current_state is not None first.
+        """
         if self.current_state is not None:
             self.current_state.update(self, rs)
         else:
             print("ERROR: Tried to update FSM with null state!")
 
     def change_state(self, rs: RobotState, new_state):
+        """Changes from one state to another.
+
+        Args:
+            rs (RobotState): current robot state
+            new_state ([FSMState]): new FSM state to enter into
+        """
         if self.current_state is not None:
             self.current_state.exit(self, rs)
         
@@ -27,13 +46,17 @@ class StateMachine:
         self.current_state.enter(self, rs)
 
 class FSMState:
+    """State in a state machine."""
     def enter(self, fsm: StateMachine, rs: RobotState):
+        """Called when entering into this state."""
         pass
 
     def update(self, fsm: StateMachine, rs: RobotState):
+        """Called each tick this state is active in."""
         pass
 
     def exit(self, fsm: StateMachine, rs: RobotState):
+        """Called when changing out of this state."""
         pass
 
 if __name__ == "__main__":

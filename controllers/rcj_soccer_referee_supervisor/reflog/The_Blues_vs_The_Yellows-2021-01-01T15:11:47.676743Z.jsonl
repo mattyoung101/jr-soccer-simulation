@@ -1,0 +1,1 @@
+{"datetime": "2021-01-01T15:11:47.737817Z", "matchtime": 0, "event": "MATCH_START", "msg": "The match (600s) has started", "payload": {"score_yellow": 0, "score_blue": 0, "total_match_time": 600}}
