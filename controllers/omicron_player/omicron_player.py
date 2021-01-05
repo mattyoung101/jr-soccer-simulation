@@ -57,8 +57,10 @@ right_motor.setVelocity(0.0)
 rs = fsm.RobotState()
 rs.agent_name = name
 
-# TODO figure out if defender or attacker first!!!!!!!!!!
-states.attack_fsm.change_state(rs, states.StateAttackChase())
+if rs.agent_name[1] == '1':
+    states.attack_fsm.change_state(rs, states.StateAttackChase())
+elif rs.agent_name[1] == '2':
+    states.attack_fsm.change_state(rs, states.StateAttackHover())
 
 while robot.step(TIME_STEP) != -1:
     # Supervisor comms stuff
@@ -68,8 +70,8 @@ while robot.step(TIME_STEP) != -1:
 
         data = parse_supervisor_msg(packet)
 
-        if name.upper() != 'B1':
-            continue
+        # if name.upper() != 'B1':
+        #     continue
 
         # Update RobotState
         # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
@@ -78,7 +80,8 @@ while robot.step(TIME_STEP) != -1:
         rs.agent_heading = data[name.upper()]['orientation']
 
         # Update state machine
-        states.attack_fsm.update(rs)
+        if rs.agent_name[1] in ['1', '2']:
+            states.attack_fsm.update(rs)
         
         # Update motors
         left_motor.setVelocity(rs.out[0][0])
