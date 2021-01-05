@@ -12,8 +12,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.2029238752050553 -0.9594245159653069 -0.19577154807708913 4.723722123328065
-  position 3.034890534101171 1.067199421338809 0.13609085438275026
+  orientation 0.89203655957845 -0.42391687829787283 -0.1567330745874296 5.5187963798146935
+  position 1.2687439442761037 1.8375298114691698 2.482874523228774
 }
 TexturedBackground {
 }
@@ -444,8 +444,6 @@ DEF B1 Robot {
           density -1
           mass 0.005
         }
-        linearVelocity -0.11083437722052676 3.378129988770142e-06 0.16580970281858495
-        angularVelocity 8.29922728666315 0.02899335361012341 5.547581713153919
       }
     }
     HingeJoint {
@@ -499,8 +497,6 @@ DEF B1 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
-        linearVelocity -0.10961045708193574 -3.841366622899838e-06 0.16396937478655202
-        angularVelocity 8.19646485783288 0.028879979494844166 5.478728379976307
       }
     }
     DEF BLUE_ROBOT_SHAPE Shape {
@@ -579,8 +575,6 @@ DEF B2 Robot {
           density -1
           mass 0.005
         }
-        linearVelocity 3.658292775851682e-15 -3.1269348308360956e-15 -1.857039286471535e-15
-        angularVelocity -6.27941677998631e-14 -2.1374596413405818e-13 -2.984812083918321e-13
       }
     }
     HingeJoint {
@@ -634,8 +628,6 @@ DEF B2 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
-        linearVelocity -1.5409476331938353e-14 1.373060084901779e-15 -1.6997658063482806e-15
-        angularVelocity -1.2062730604845103e-14 -2.1517140693013692e-13 8.386759899163792e-13
       }
     }
     DEF BLUE_ROBOT_SHAPE Shape {
@@ -663,7 +655,7 @@ DEF B2 Robot {
   angularVelocity -5.583350628475933e-15 -2.1470512339735994e-13 1.2754252654006888e-15
 }
 DEF B3 Robot {
-  translation 0.8174238752509089 0.03481847317123975 -0.09040457900769704
+  translation 0.747446 0.0365966 -0.090555
   rotation 0.012703148142564938 0.9999192669199521 -0.0002994487157970626 3.1394526087174524
   children [
     HingeJoint {
@@ -711,8 +703,6 @@ DEF B3 Robot {
           density -1
           mass 0.005
         }
-        linearVelocity 1.334363355319608e-05 1.6982770004346577e-05 -8.059774319279099e-06
-        angularVelocity -7.81907190328468e-05 -0.00010943448863932507 0.0011193875396640072
       }
     }
     HingeJoint {
@@ -766,8 +756,6 @@ DEF B3 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
-        linearVelocity 1.5094015224450972e-05 0.00011911913474999276 2.2854244185060806e-06
-        angularVelocity -7.87109285666131e-05 -0.00010941001652413433 0.001119369460263975
       }
     }
     DEF BLUE_ROBOT_SHAPE Shape {
@@ -791,8 +779,6 @@ DEF B3 Robot {
   boundingObject USE BLUE_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
   controller "omicron_player"
-  linearVelocity -5.264674250235085e-06 6.817544277842028e-05 -4.263941818080098e-06
-  angularVelocity -7.792674946127635e-05 -0.00010944116383419205 0.0011193834905000176
 }
 DEF Y1 Robot {
   translation -0.2273415532995128 0.03750975412131362 0.2613898968411721
@@ -843,8 +829,6 @@ DEF Y1 Robot {
           density -1
           mass 0.005
         }
-        linearVelocity 1.0753685428870516e-14 2.2341638662668034e-15 -1.1530304644588213e-15
-        angularVelocity -4.0681236226669174e-14 -1.310155028943596e-13 -8.080152456507177e-13
       }
     }
     HingeJoint {
@@ -898,8 +882,6 @@ DEF Y1 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
-        linearVelocity -7.646151055441855e-16 -1.4678170609897362e-15 -1.4315613120719774e-15
-        angularVelocity 9.729589476551439e-14 -1.3040124175734237e-13 6.28828372514644e-14
       }
     }
     DEF YELLOW_ROBOT_SHAPE Shape {
@@ -975,8 +957,6 @@ DEF Y2 Robot {
           density -1
           mass 0.005
         }
-        linearVelocity 3.4856629492351726e-12 8.455849830086718e-17 1.393784041722144e-11
-        angularVelocity 1.4912649194039506e-12 -1.418672218495443e-12 7.512345912753387e-12
       }
     }
     HingeJoint {
@@ -1030,8 +1010,6 @@ DEF Y2 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
-        linearVelocity -3.82465974085374e-12 -3.4812727871106123e-16 -1.3875820043880297e-11
-        angularVelocity 3.2961913204863746e-12 -1.4223737309460675e-12 1.2048574768063005e-11
       }
     }
     DEF YELLOW_ROBOT_SHAPE Shape {
@@ -1107,8 +1085,6 @@ DEF Y3 Robot {
           density -1
           mass 0.005
         }
-        linearVelocity 2.9110158933266963e-15 8.268042563825483e-16 6.954363915666551e-13
-        angularVelocity 4.245141968293165e-11 1.0269280149100926e-11 -1.3161219459830748e-13
       }
     }
     HingeJoint {
@@ -1162,8 +1138,6 @@ DEF Y3 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
-        linearVelocity 1.066491190438549e-15 -1.4518275678074582e-15 -2.3652761538169115e-13
-        angularVelocity -2.734156792132566e-11 1.0367981804583204e-11 -1.2643555689289667e-13
       }
     }
     DEF YELLOW_ROBOT_SHAPE Shape {

@@ -57,8 +57,12 @@ right_motor.setVelocity(0.0)
 rs = fsm.RobotState()
 rs.agent_name = name
 
-# TODO figure out if defender or attacker first!!!!!!!!!!
-states.attack_fsm.change_state(rs, states.StateAttackChase())
+if rs.agent_name[1] == '1':
+    states.attack_fsm.change_state(rs, states.StateAttackChase())
+elif rs.agent_name[1] == '2':
+    states.attack_fsm.change_state(rs, states.StateAttackHover())
+elif rs.agent_name[1] == '3':
+    states.defend_fsm.change_state(rs, states.StateDefendIdle())
 
 while robot.step(TIME_STEP) != -1:
     # Supervisor comms stuff
@@ -68,8 +72,8 @@ while robot.step(TIME_STEP) != -1:
 
         data = parse_supervisor_msg(packet)
 
-        if name.upper() != 'B1':
-            continue
+        # if name.upper() != 'B3':
+        #     continue
 
         # Update RobotState
         # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
@@ -78,15 +82,10 @@ while robot.step(TIME_STEP) != -1:
         rs.agent_heading = data[name.upper()]['orientation']
 
         # Update state machine
-        states.attack_fsm.update(rs)
-        # rs.out = utils.kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], 0.1, False)
-
-        # print(rs.agent_pos[0], rs.agent_pos[1], rs.agent_heading, rs.ball_pos[0], rs.ball_pos[1])
-        direction = math.atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
-        goal_angle = math.atan2(0.85 - rs.agent_pos[1], -rs.agent_pos[0])
-        print(direction, goal_angle, direction - goal_angle)
-        # if (abs(direction-goal_angle) < 0.15):
-        #     print("PGOGGERS")
+        if rs.agent_name[1] in ['1', '2']:
+            states.attack_fsm.update(rs)
+        elif rs.agent_name[1] == '3':
+            states.defend_fsm.update(rs)
         
         # Update motors
         left_motor.setVelocity(rs.out[0][0])
