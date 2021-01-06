@@ -48,7 +48,7 @@ def calc_motors(speed, rotation):
             # print("MOTOR OUTPUT SATURATED")
             inner_wheel /= outer_wheel / MOTOR_MAX_VEL
             outer_wheel = MOTOR_MAX_VEL
-        print(f"turning: {turning_radius}, outer: {outer_wheel}, inner: {inner_wheel}")
+        # print(f"turning: {turning_radius}, outer: {outer_wheel}, inner: {inner_wheel}")
         if sign(speed) == -1:
             return [-outer_wheel, -inner_wheel] if rotation > 0 else [-inner_wheel, -outer_wheel]
         else:
@@ -62,7 +62,7 @@ def move_to_point(rs: RobotState, end_x, end_y, reverse):
     else:
         error = (rs.agent_heading - direction + (pi if reverse else 0)) % (2*pi)
         error = error - 2*pi if error > pi else error
-        print(f"Direction: {direction}, Heading: {rs.agent_heading}, Error: {error}")
+        # print(f"Direction: {direction}, Heading: {rs.agent_heading}, Error: {error}")
         return [calc_motors(-MOVE_SPEED if reverse else MOVE_SPEED, HEADING_KP * error), True if distance <= ARRIVE_THRESH else False]
 
 def kite_point(rs: RobotState, centre_x, centre_y, radius, reversed):

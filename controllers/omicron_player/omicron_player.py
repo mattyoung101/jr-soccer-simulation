@@ -72,8 +72,8 @@ while robot.step(TIME_STEP) != -1:
 
         data = parse_supervisor_msg(packet)
 
-        if name.upper() != 'B2':
-            continue
+        # if name.upper() != 'B2':
+        #     continue
 
         # Update RobotState
         # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
