@@ -72,8 +72,8 @@ while robot.step(TIME_STEP) != -1:
 
         data = parse_supervisor_msg(packet)
 
-        # if name.upper() != 'B3':
-        #     continue
+        if name.upper() != 'B2':
+            continue
 
         # Update RobotState
         # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
@@ -86,7 +86,7 @@ while robot.step(TIME_STEP) != -1:
             states.attack_fsm.update(rs)
         elif rs.agent_name[1] == '3':
             states.defend_fsm.update(rs)
-        
+
         # Update motors
         left_motor.setVelocity(rs.out[0][0])
         right_motor.setVelocity(rs.out[0][1])
