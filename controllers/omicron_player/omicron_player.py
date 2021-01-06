@@ -1,5 +1,5 @@
 """
-Agent for RoboCup Jr 2021 Simulation project
+Agent for RoboCup Jr 2021 Simulation project.
 Copyright (c) 2020 Team Omicron (Ethan Lo, Matt Young, James Talkington).
 """
 from controller import Robot
