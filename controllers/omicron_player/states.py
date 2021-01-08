@@ -101,8 +101,6 @@ class StateAttackYeet(FSMState):
     def exit(self, fsm, rs):
         log("Exiting attack yeet", rs)
 
-attack_fsm = StateMachine()
-
 
 # === DEFEND FSM === #
 
@@ -117,5 +115,3 @@ class StateDefendIdle(FSMState):
             rs.out = [calc_motors(0, IDLE_KP * error), True]
     def exit(self, fsm, rs):
         log("Exiting defend idle", rs)
-
-defend_fsm = StateMachine()

@@ -1,6 +1,7 @@
 import struct
 import random
-from pathlib import Path
+
+from typing import List, Tuple
 
 from controller import Supervisor
 from referee.progress_checker import ProgressChecker
@@ -10,8 +11,13 @@ from referee.consts import (
     ROBOT_INITIAL_TRANSLATION,
     ROBOT_INITIAL_ROTATION,
     BALL_INITIAL_TRANSLATION,
+    KICKOFF_TRANSLATION,
+    LabelIDs,
+    MAX_EVENT_MESSAGES_IN_QUEUE,
 )
-from referee.json_logger import JSONLogger
+from referee.eventer import Eventer
+from referee.event_handlers import EventHandler
+from referee.utils import time_to_string
 
 
 class RCJSoccerSupervisor(Supervisor):
@@ -22,24 +28,28 @@ class RCJSoccerSupervisor(Supervisor):
         progress_check_threshold: int,
         ball_progress_check_steps: int,
         ball_progress_check_threshold: int,
-        reflog_path: Path,
         team_name_blue: str,
         team_name_yellow: str,
         penalty_area_allowed_time: int,
         penalty_area_reset_after: int,
         post_goal_wait_time: int = 3,
-        add_noise_to_initial_position: bool = True
+        initial_position_noise: float = 0.15
     ):
 
         super().__init__()
 
         self.match_time = match_time
         self.post_goal_wait_time = post_goal_wait_time
-        self.add_noise_to_initial_position = add_noise_to_initial_position
+        self.initial_position_noise = initial_position_noise
 
         self.time = match_time
 
-        self.log = JSONLogger(reflog_path)
+        # Event message queue to be drawn
+        # List of Tuples of int (time) and string (message)
+        self.event_messages_to_draw: List[Tuple[int, str]] = []
+
+        self.eventer = Eventer()
+
         self.team_name_blue = team_name_blue
         self.team_name_yellow = team_name_yellow
 
@@ -90,6 +100,8 @@ class RCJSoccerSupervisor(Supervisor):
 
         self.ball_reset_timer = 0
         self.score_blue = self.score_yellow = 0
+        # The team that ought to have the kickoff at the next restart
+        self.team_to_kickoff = None
 
         self.draw_scores(self.score_blue, self.score_yellow)
 
@@ -106,42 +118,86 @@ class RCJSoccerSupervisor(Supervisor):
             # TODO: update self.robot_in_penalty_counter if the robot
             #       is located in penalty area
 
-    def draw_scores(self, blue: int, yellow: int):
+    def add_event_subscriber(self, subscriber: EventHandler):
+        """Add new event subscriber.
+
+        Args:
+            subscriber (EventHandler): Instance inheriting EventHandler
         """
-        Visualize (draw) the provide scores for both the blue and the yellow
-        teams.
+        self.eventer.subscribe(subscriber)
+
+    def draw_scores(self, blue: int, yellow: int):
+        """Visualize (draw) the provide scores for both the blue and
+        the yellow teams.
 
         Args:
             blue (int): score of the blue team
             yellow (int): score of the yellow team
         """
 
-        self.setLabel(0, str(blue),
-                      # X and Y positions
-                      0.92, 0.01,
-                      # Size and color
-                      0.1, 0x0000ff,
-                      # Transparency and Font
-                      0.0, "Tahoma")
+        self.setLabel(
+            LabelIDs.BLUE_SCORE.value,
+            str(blue),
+            0.92,  # X position
+            0.01,  # Y position
+            0.1,  # Size
+            0x0000ff,  # Color
+            0.0,  # Transparency
+            "Tahoma",  # Font
+        )
 
-        self.setLabel(1, str(yellow),
-                      # X and Y positions
-                      0.05, 0.01,
-                      # Size and color
-                      0.1, 0xffff00,
-                      # Transparency and Font
-                      0.0, "Tahoma")
+        self.setLabel(
+            LabelIDs.YELLOW_SCORE.value,
+            str(yellow),
+            0.05,  # X position
+            0.01,  # Y position
+            0.1,  # Size
+            0xffff00,  # Color
+            0.0,  # Transparency
+            "Tahoma"  # Font
+        )
 
-    def draw_time(self, time):
-        """
-        Visualize (draw) the current match time
+    def draw_time(self, time: int):
+        """Visualize (draw) the current match time
 
         Args:
             time (int): the current match time
         """
 
-        time_str = "%02d:%02d" % (time // 60, time % 60)
-        self.setLabel(2, time_str, 0.45, 0.01, 0.1, 0x000000, 0.0, "Arial")
+        self.setLabel(
+            LabelIDs.TIME.value,
+            time_to_string(time),
+            0.45,
+            0.01,
+            0.1,
+            0x000000,
+            0.0,
+            "Arial",
+        )
+
+    def draw_event_messages(self):
+        """Visualize (draw) the event messages from queue"""
+        messages = []
+        for time, msg in self.event_messages_to_draw:
+            messages.append("{} - {}".format(time_to_string(time), msg))
+
+        if messages:
+            self.setLabel(
+                LabelIDs.EVENT_MESSAGES.value,
+                "\n".join(messages),
+                0.01,
+                0.95 - ((len(messages)-1) * 0.025),
+                0.05,
+                0xffffff,
+                0.0,
+                "Tahoma",
+            )
+
+    def add_event_message_to_queue(self, message: str):
+        if len(self.event_messages_to_draw) >= MAX_EVENT_MESSAGES_IN_QUEUE:
+            self.event_messages_to_draw.pop(0)
+
+        self.event_messages_to_draw.append((self.time, message))
 
     def _pack_packet(
         self,
@@ -149,17 +205,14 @@ class RCJSoccerSupervisor(Supervisor):
         robot_translation: dict,
         ball_translation: list,
     ):
-        """
-        Take the positions and rotations of the robots and the ball and pack
+        """ Take the positions and rotations of the robots and the ball and pack
         them into a single packet that can be send to all robots in the game.
 
         Args:
             robot_rotation (dict): a mapping between the robot name and its
                                    rotation
-
             robot_translation (dict): a mapping between the robot name and its
                                       position on the field
-
             ball_translation (list): the position of the ball on the field
 
         Returns:
@@ -216,13 +269,21 @@ class RCJSoccerSupervisor(Supervisor):
         self.ball.setVelocity([0, 0, 0, 0, 0, 0])
         self.progress_chck['ball'].reset()
 
+    def _add_initial_position_noise(
+        self,
+        translation: List[float]
+    ) -> List[float]:
+
+        level = self.initial_position_noise
+        translation[0] += (random.random() - 0.5) * level
+        translation[2] += (random.random() - 0.5) * level
+        return translation
+
     def reset_robot_position(self, robot):
         self.getFromDef(robot).setVelocity([0, 0, 0, 0, 0, 0])
 
         translation = ROBOT_INITIAL_TRANSLATION[robot].copy()
-        if self.add_noise_to_initial_position:
-            translation[0] += (random.random() - 0.5) / 5
-            translation[2] += (random.random() - 0.5) / 5
+        translation = self._add_initial_position_noise(translation)
 
         tr_field = self.getFromDef(robot).getField('translation')
         tr_field.setSFVec3f(translation)
@@ -242,3 +303,22 @@ class RCJSoccerSupervisor(Supervisor):
             return self.team_name_blue
         else:
             raise ValueError(f"Unrecognized robot's name {robot_name}")
+
+    def reset_team_for_kickoff(self, team: str):
+        """
+        Given a team name ('B' or 'Y'), set the position of the third robot on
+        the team to "kick off" (inside the center circle).
+
+        Returns:
+            str: Name of the robot that is kicking off.
+        """
+        # Always kickoff with the third robot
+        robot = f'{team}3'
+
+        tr_field = self.getFromDef(robot).getField('translation')
+        tr_field.setSFVec3f(KICKOFF_TRANSLATION[team])
+
+        rot_field = self.getFromDef(robot).getField('rotation')
+        rot_field.setSFRotation(ROBOT_INITIAL_ROTATION[robot])
+
+        return robot
