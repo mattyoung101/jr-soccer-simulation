@@ -13,7 +13,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 0.89203655957845 -0.42391687829787283 -0.1567330745874296 5.5187963798146935
-  position 1.2687439442761037 1.8375298114691698 2.482874523228774
+  position 0.4682208868078519 2.299020553683255 2.359750901469315
 }
 TexturedBackground {
 }
@@ -388,8 +388,6 @@ DEF SOCCER_FIELD Solid {
   locked TRUE
 }
 DEF BALL SoccerBall {
-  hidden linearVelocity_0 -0.11765626905630724 6.06814663390279e-08 0.17638066002861108
-  hidden angularVelocity_0 8.399079048981479 -0.30301394863757264 5.6026794788717735
   translation -0.18400060990810052 0.020921512236566756 -0.14888180463757295
   rotation 0.7462276273432348 0.07874194135774631 -0.6610174240221656 1.2153537004718042
   radius 0.021
@@ -415,7 +413,7 @@ DEF B1 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation 1 0 0 5.552452531623495
+        rotation 1 0 0 5.552452531623496
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -462,7 +460,7 @@ DEF B1 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation 1 0 0 5.914438796443918
+        rotation 1 0 0 5.914438796443919
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -523,8 +521,6 @@ DEF B1 Robot {
     mass 0.2
   }
   controller "omicron_player"
-  linearVelocity -0.11006224984350976 -4.349456353447084e-06 0.1646501217348626
-  angularVelocity -0.014435960464931123 0.024770216888335785 -0.009666239896750927
 }
 DEF B2 Robot {
   translation 0.35970481832198087 0.03750975561851281 -0.2403280214081898
@@ -651,8 +647,6 @@ DEF B2 Robot {
   boundingObject USE BLUE_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
   controller "omicron_player"
-  linearVelocity -6.152059717660698e-15 2.4537000971727263e-16 -1.994826882748157e-15
-  angularVelocity -5.583350628475933e-15 -2.1470512339735994e-13 1.2754252654006888e-15
 }
 DEF B3 Robot {
   translation 0.747446 0.0365966 -0.090555
@@ -847,7 +841,7 @@ DEF Y1 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation 1 0 0 3.114446381578736
+        rotation 1 0 0 3.1144463815787358
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -904,9 +898,6 @@ DEF Y1 Robot {
   name "y1"
   boundingObject USE YELLOW_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
-  controller "rcj_soccer_player"
-  linearVelocity 4.84869159998881e-15 -7.336320098646335e-17 -1.1624689785073891e-15
-  angularVelocity -9.62039613598207e-16 -1.3129695390929595e-13 1.5001899765228846e-15
 }
 DEF Y2 Robot {
   translation -0.34558437239616935 0.037509869667159426 -0.47017606981230653
@@ -1032,9 +1023,6 @@ DEF Y2 Robot {
   name "y2"
   boundingObject USE YELLOW_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
-  controller "rcj_soccer_player"
-  linearVelocity -1.7042772957959977e-13 -3.0883880741106473e-16 3.097329155496626e-14
-  angularVelocity -8.268926625933125e-15 -1.4215416683189607e-12 3.6766698422643595e-14
 }
 DEF Y3 Robot {
   translation -0.7429259207130957 0.03753798903716501 0.09062716532976564
@@ -1160,9 +1148,6 @@ DEF Y3 Robot {
   name "y3"
   boundingObject USE YELLOW_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
-  controller "rcj_soccer_player"
-  linearVelocity 1.7000550697311538e-15 6.418861101068937e-16 2.2963959857382707e-13
-  angularVelocity -7.772312184717642e-18 1.0329344554388235e-11 -1.983779216788197e-14
 }
 Robot {
   children [

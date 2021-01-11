@@ -7,6 +7,7 @@ class RobotState:
     """
     def __init__(self):
         self.agent_name = ""
+        self.agent_id = -1
         self.agent_pos = [0, 0]
         self.agent_heading = 0
         self.ball_pos = [0, 0]
