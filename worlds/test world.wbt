@@ -388,18 +388,20 @@ DEF SOCCER_FIELD Solid {
   locked TRUE
 }
 DEF BALL SoccerBall {
-  translation -0.18400060990810052 0.020921512236566756 -0.14888180463757295
-  rotation 0.7462276273432348 0.07874194135774631 -0.6610174240221656 1.2153537004718042
+  hidden linearVelocity_0 0.17453030064046218 4.670474938633653e-08 0.028996356637065006
+  hidden angularVelocity_0 1.380778887479286 -7.428756569919044 -8.310966697164865
+  translation -0.5166856810791414 0.02092151402471255 0.6241562722518492
+  rotation 0.82564410642588 0.0012690932184558149 -0.5641898607087981 1.725418996276371
   radius 0.021
   mass 0.05
 }
 DEF B1 Robot {
-  translation -0.143424609876821 0.03751779213216514 -0.20994354684329117
-  rotation 0.0001245198653582886 0.9999999155866819 -0.0003915628078229509 2.553045322534189
+  translation -0.5021474618479521 0.03772540616774256 0.26928892526476417
+  rotation -0.0015542889331394952 0.9999971767748354 -0.0017973948567252397 3.102575813706853
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 359.3991802847925
+        position 761.5505021447326
         axis -1 0 0
         anchor 0.045 -0.0176 0
       }
@@ -413,7 +415,7 @@ DEF B1 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation 1 0 0 5.552452531623496
+        rotation 1 0 0 5.524990331176947
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -442,11 +444,13 @@ DEF B1 Robot {
           density -1
           mass 0.005
         }
+        linearVelocity -0.008866845007947577 -0.0013471567413935598 0.16325508329048394
+        angularVelocity 8.187720404565901 -0.30584934482013626 0.4429538007018253
       }
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 459.5673279348455
+        position 908.1463901914359
         axis -1 0 0
         anchor -0.045 -0.0176 0
       }
@@ -460,7 +464,7 @@ DEF B1 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation 1 0 0 5.914438796443919
+        rotation -1 0 0 2.8416519575754466
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -495,6 +499,8 @@ DEF B1 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
+        linearVelocity -0.011965408737785708 0.015340578273319645 0.19681312791050545
+        angularVelocity 9.95962193990614 -0.3219726460387119 0.4806508247317852
       }
     }
     DEF BLUE_ROBOT_SHAPE Shape {
@@ -521,14 +527,16 @@ DEF B1 Robot {
     mass 0.2
   }
   controller "omicron_player"
+  linearVelocity -0.01377350123324832 0.008707611091937652 0.17865915550885061
+  angularVelocity -0.036493332522243904 -0.35199187653387565 0.19673844795193018
 }
 DEF B2 Robot {
-  translation 0.35970481832198087 0.03750975561851281 -0.2403280214081898
-  rotation 0.00012629115372378194 0.9999999834963312 -0.0001306058261197225 1.5651267284318333
+  translation 0.3533848423741612 0.0377822856550758 0.21541412492216458
+  rotation 0.020019105779913848 0.999771121725159 -0.007545831179530951 -0.30055435345879583
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -41.690944366069616
+        position -197.79763354865014
         axis -1 0 0
         anchor 0.045 -0.0176 0
       }
@@ -542,7 +550,7 @@ DEF B2 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation 1 0 0 4.5187175229940975
+        rotation -0.9999999999999999 0 0 2.7374112810946265
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -571,11 +579,13 @@ DEF B2 Robot {
           density -1
           mass 0.005
         }
+        linearVelocity -0.0006252012148331395 2.706251602012292e-05 0.0010524593010843683
+        angularVelocity 0.05384777996774289 -0.005822071981295073 0.030850327059250025
       }
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -33.50331605934201
+        position -144.83857981533495
         axis -1 0 0
         anchor -0.045 -0.0176 0
       }
@@ -589,7 +599,7 @@ DEF B2 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation -1 0 0 3.6697417837432447
+        rotation -0.9999999999999999 0 0 5.431813556982862
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -624,6 +634,8 @@ DEF B2 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
+        linearVelocity -0.000421588601537963 -9.48620413700063e-05 0.0011360043768251279
+        angularVelocity 0.0561517594672383 -0.0006470307943352847 0.023361319013919017
       }
     }
     DEF BLUE_ROBOT_SHAPE Shape {
@@ -647,14 +659,16 @@ DEF B2 Robot {
   boundingObject USE BLUE_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
   controller "omicron_player"
+  linearVelocity -0.0008903182009145805 -9.191294746762436e-05 0.002126754049473391
+  angularVelocity 0.05714525975427313 7.713297210739171e-05 0.02014746470383026
 }
 DEF B3 Robot {
-  translation 0.747446 0.0365966 -0.090555
-  rotation 0.012703148142564938 0.9999192669199521 -0.0002994487157970626 3.1394526087174524
+  translation 0.22907514092318348 0.03744565912537251 -0.002835862569902627
+  rotation 0.00018018478761920646 0.9999999369972448 0.0003058413789328263 -2.4275303714653114
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -16.804927720453875
+        position -30.69790319484002
         axis -1 0 0
         anchor 0.045 -0.0176 0
       }
@@ -668,7 +682,7 @@ DEF B3 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation 1 0 0 4.765442106096702
+        rotation 1 0 0 6.092046966123672
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -697,11 +711,13 @@ DEF B3 Robot {
           density -1
           mass 0.005
         }
+        linearVelocity -0.13247629301321287 -0.0018469262165802325 -0.12924607934517515
+        angularVelocity -6.919686533763504 -3.3473893720082084 7.148459307368066
       }
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -44.945371538583494
+        position -98.70464112463192
         axis -1 0 0
         anchor -0.045 -0.0176 0
       }
@@ -715,7 +731,7 @@ DEF B3 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation -1 0 0 4.794056918860929
+        rotation -1 0 0 1.3002697902491953
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -750,6 +766,8 @@ DEF B3 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
+        linearVelocity 0.06844003896068221 -0.0007346792769210467 0.07848986104908122
+        angularVelocity 3.985478650664066 -3.3077010551883674 -3.9427804710342462
       }
     }
     DEF BLUE_ROBOT_SHAPE Shape {
@@ -773,14 +791,16 @@ DEF B3 Robot {
   boundingObject USE BLUE_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
   controller "omicron_player"
+  linearVelocity -0.03142745918762359 -0.0012885491017603696 -0.024612575483475473
+  angularVelocity 0.04446462957472552 -3.1617906487842733 -0.02953429768328373
 }
 DEF Y1 Robot {
-  translation -0.2273415532995128 0.03750975412131362 0.2613898968411721
-  rotation 0.0001245572804218137 0.9999999837124351 -0.0001306162835518048 1.5594574431250756
+  translation -0.6893906344663703 0.03744043455335984 0.47711926777145913
+  rotation 0.014126310775346592 0.9993426977105078 0.0333859233295026 0.0914991091710986
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -41.30908703087187
+        position -287.42343079574346
         axis -1 0 0
         anchor 0.045 -0.0176 0
       }
@@ -794,7 +814,7 @@ DEF Y1 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation 1 0 0 4.136860187796355
+        rotation -1 0 0 1.0762083345155191
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -823,11 +843,13 @@ DEF Y1 Robot {
           density -1
           mass 0.005
         }
+        linearVelocity 0.018155334254578055 -0.0001294426682583602 0.197722002619664
+        angularVelocity 9.862890264347788 -0.003867229679707762 -0.9100721958468165
       }
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -40.287504224664
+        position -325.8131067766146
         axis -1 0 0
         anchor -0.045 -0.0176 0
       }
@@ -841,7 +863,7 @@ DEF Y1 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation 1 0 0 3.1144463815787358
+        rotation -1 0 0 0.38647519673166525
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -876,6 +898,8 @@ DEF Y1 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
+        linearVelocity 0.018187087672628922 0.0005141358825633624 0.19679267525540334
+        angularVelocity 9.863407776248774 -0.009163514720230416 -0.9046697574885979
       }
     }
     DEF YELLOW_ROBOT_SHAPE Shape {
@@ -898,14 +922,17 @@ DEF Y1 Robot {
   name "y1"
   boundingObject USE YELLOW_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
+  controller "rcj_soccer_player"
+  linearVelocity 0.017841692269885256 -0.0017419798775201534 0.19500592918025264
+  angularVelocity -0.09413430856641103 -0.03906397320916591 0.015380098973838206
 }
 DEF Y2 Robot {
-  translation -0.34558437239616935 0.037509869667159426 -0.47017606981230653
-  rotation 0.000101603198147808 0.9999999861354661 -0.00013193126121379753 1.8233808542592982
+  translation -0.6966166828496774 0.03714804819808157 0.370159324832209
+  rotation -0.14525850018988717 0.9890072211417448 -0.02765293207001256 0.012213618252143732
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -46.58657978334974
+        position -224.77400415326122
         axis -1 0 0
         anchor 0.045 -0.0176 0
       }
@@ -919,7 +946,7 @@ DEF Y2 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation -0.9999999999999999 0 0 3.152017674084951
+        rotation -1 0 0 0.8937819052018965
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -948,11 +975,13 @@ DEF Y2 Robot {
           density -1
           mass 0.005
         }
+        linearVelocity 0.0019989929949893056 0.003523447258528483 0.19986727253421713
+        angularVelocity 10.012962306919775 -0.01744323287060543 -0.1284054777099234
       }
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -31.49202260178095
+        position -265.9603501494612
         axis -1 0 0
         anchor -0.045 -0.0176 0
       }
@@ -966,7 +995,7 @@ DEF Y2 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation -1 0 0 5.681035241304309
+        rotation 1 0 0 2.5926212479108215
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -1001,6 +1030,8 @@ DEF Y2 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
+        linearVelocity 0.0027275552500524037 0.00304242387481611 0.2002517150325538
+        angularVelocity 10.01287194810565 0.007250760300437394 -0.1363103715066313
       }
     }
     DEF YELLOW_ROBOT_SHAPE Shape {
@@ -1023,14 +1054,17 @@ DEF Y2 Robot {
   name "y2"
   boundingObject USE YELLOW_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
+  controller "rcj_soccer_player"
+  linearVelocity 0.0025207502445656646 0.002830892639314932 0.20002865186978452
+  angularVelocity 0.013708813096754051 0.005649276405457529 -0.006458319786552505
 }
 DEF Y3 Robot {
-  translation -0.7429259207130957 0.03753798903716501 0.09062716532976564
-  rotation 0.0007065538847039205 0.9999997503907543 -1.9280526690556964e-07 -3.1409250186401514
+  translation -0.3857807648014616 0.03751646544574905 0.18779637585450928
+  rotation -0.18019894827564892 0.9820383163532744 -0.05593821819093002 -0.5608388569182172
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -38.78251792655441
+        position -65.52708923833849
         axis -1 0 0
         anchor 0.045 -0.0176 0
       }
@@ -1044,7 +1078,7 @@ DEF Y3 Robot {
       ]
       endPoint Solid {
         translation 0.045 -0.0176 0
-        rotation 1 0 0 1.6102910834788904
+        rotation 1 0 0 3.222121166544622
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -1073,11 +1107,13 @@ DEF Y3 Robot {
           density -1
           mass 0.005
         }
+        linearVelocity 0.0035999738712085977 2.615268262549838e-06 -0.005187871957026552
+        angularVelocity -0.5914761051561168 1.5983400995612775 -0.40747917261545386
       }
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position 38.782806560192945
+        position 37.36732718990863
         axis -1 0 0
         anchor -0.045 -0.0176 0
       }
@@ -1091,7 +1127,7 @@ DEF Y3 Robot {
       ]
       endPoint Solid {
         translation -0.045 -0.0176 0
-        rotation -1 0 0 0.5576407171231612
+        rotation 1 0 0 0.8578386531611546
         children [
           Transform {
             rotation 0 0 1 1.57
@@ -1126,6 +1162,8 @@ DEF Y3 Robot {
           ]
         }
         physics USE WHEEL_PHYSICS
+        linearVelocity -0.07801447904671019 -2.8643297038726935e-06 0.1135046041237519
+        angularVelocity 6.000309022628902 1.5982168836703559 4.1255515112419445
       }
     }
     DEF YELLOW_ROBOT_SHAPE Shape {
@@ -1148,6 +1186,9 @@ DEF Y3 Robot {
   name "y3"
   boundingObject USE YELLOW_ROBOT_SHAPE
   physics USE ROBOT_PHYSICS
+  controller "rcj_soccer_player"
+  linearVelocity -0.06994498432823462 4.975664582140628e-05 0.10174698402321622
+  angularVelocity 2.70437355937648 1.59831151900291 1.8590984577209693
 }
 Robot {
   children [
