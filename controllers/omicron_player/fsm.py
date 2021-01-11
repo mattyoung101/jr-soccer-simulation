@@ -17,7 +17,6 @@ class StateMachine:
     """
     A very simple finite state machine.
     """
-
     def __init__(self):
         """
         Initialises the FSM. The state is initially set to null.
@@ -31,7 +30,8 @@ class StateMachine:
         if self.current_state is not None:
             self.current_state.update(self, rs)
         else:
-            print("ERROR: Tried to update FSM with null state!")
+            import utils
+            utils.log("ERROR: Tried to update FSM with null state!", rs)
 
     def change_state(self, rs: RobotState, new_state):
         """Changes from one state to another.

@@ -2,16 +2,30 @@ from math import atan2, sqrt, pi
 
 class Predictor:
     """
-    The predictor records velocities of simulation objects to extrapolate their positions in the future.
+    The predictor records velocities of a simulation object to extrapolate its position in the future.
     """
-
     def __init__(self, initial_pos):
         self.last_pos = initial_pos # x,y
-        self.last_displacement = [0, 0] # delta x, delta y
+        self.last_delta = [0, 0] # delta x, delta y
         self.last_time = 0 # scalar
-        pass
+        self.last_velocity = [0, 0] 
 
-    def add_measurement(self, current_pos, current_time):
-        #dist = sqrt((current_pos[0] - self.last_pos[0]) ** 2 + (current_pos[1] - self.last_pos[1]) ** 2)
-        
-        pass
+    def push_measurement(self, current_pos, current_time):
+        """Push position data to the predictor. In exchange, you get velocity measurements back.
+
+        Args:
+            current_pos (list): x,y position of robot
+            current_time (int): current game tick
+
+        Returns:
+            list: x velocity and y velocity of object
+        """
+        delta_pos = [current_pos[0] - self.last_pos[0], current_pos[1] - self.last_pos[1]]
+        delta_t = current_time - self.last_time
+        velocity = [delta_pos[0] / delta_t, delta_pos[1] / delta_t]
+        # update our internal state for the next call
+        self.last_pos = current_pos
+        self.last_time = current_time
+        self.last_delta = delta_pos
+        self.last_velocity = velocity
+        return velocity

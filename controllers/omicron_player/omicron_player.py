@@ -13,7 +13,7 @@ from fsm import RobotState, StateMachine
 
 class OmicronAgent(RCJSoccerRobot):
     def setup(self):
-        # TODO consider moving this to an __init__ constructor?
+        # TODO consider moving this to an __init__ constructor? will it work?
         self.rs = RobotState()
         self.rs.agent_name = self.name
         self.rs.agent_id = self.player_id
@@ -21,11 +21,11 @@ class OmicronAgent(RCJSoccerRobot):
         self.defend_fsm = StateMachine()
 
         # setup our state machines
-        if self.player_id == 1:
+        if self.player_id == 3:
             self.attack_fsm.change_state(self.rs, states.StateAttackChase())
         elif self.player_id == 2:
             self.attack_fsm.change_state(self.rs, states.StateAttackHover())
-        elif self.player_id == 3:
+        elif self.player_id == 1:
             self.defend_fsm.change_state(self.rs, states.StateDefendIdle())
 
     def run(self):
@@ -40,15 +40,14 @@ class OmicronAgent(RCJSoccerRobot):
                 self.rs.agent_heading = data[self.name.upper()]['orientation']
 
                 # Update state machine
-                if self.rs.agent_id in [1, 2]:
+                if self.rs.agent_id in [3, 2]:
                     self.attack_fsm.update(self.rs)
-                elif self.rs.agent_id == 3:
+                elif self.rs.agent_id == 1:
                     self.defend_fsm.update(self.rs)
                 
                 # Update motors
                 self.left_motor.setVelocity(self.rs.out[0][0])
                 self.right_motor.setVelocity(self.rs.out[0][1])
-
 
 omicron_agent = OmicronAgent()
 omicron_agent.setup()
