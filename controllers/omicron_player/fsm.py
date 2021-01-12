@@ -1,32 +1,32 @@
 # This code partially inspired by our FSM written in C, as used in 2019 and 2020
 # on our RoboCup Jr Open/Lightweight robots.
 
+from predictor import Predictor
+
+# TODO consider moving to states.py?
 class RobotState:
-    """
-    The state of the robot in the world (simplified). Includes "output" such as motor values.
-    """
+    """The state of the robot in the world (simplified). Includes "output" such as motor values."""
     def __init__(self):
+        # inputs
         self.agent_name = ""
         self.agent_id = -1
         self.agent_pos = [0, 0]
         self.agent_heading = 0
+        self.simulation_time = 0 # in simulation milliseconds
         self.ball_pos = [0, 0]
+        self.ball_predictor = Predictor() # per agent ball predictor
+
+        # outputs
         self.out = [[0, 0], False] # Left, Right, Flag
 
 class StateMachine:
-    """
-    A very simple finite state machine.
-    """
+    """A very simple finite state machine."""
     def __init__(self):
-        """
-        Initialises the FSM. The state is initially set to null.
-        """
+        """Initialises the FSM. The state is initially set to null."""
         self.current_state = None
 
     def update(self, rs: RobotState):
-        """
-        Ticks the FSM. Make sure that current_state is not None first.
-        """
+        """Ticks the FSM. Make sure that current_state is not None first."""
         if self.current_state is not None:
             self.current_state.update(self, rs)
         else:

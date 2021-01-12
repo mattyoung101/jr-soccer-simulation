@@ -1,12 +1,14 @@
 from math import atan2, sqrt, pi, copysign
 from fsm import RobotState
 
+# true if logging should be enabled (probably disable in comp)
 DEBUG = True
 
 # CONTANTS
 WHEEL_RADIUS = 0.02
 WHEEL_SPACING = 0.085
 MOTOR_MAX_VEL = 10
+DIAGONAL = 1.8 # field diagonal, calculated by hand :)
 
 MOVE_SPEED = 0.2
 
@@ -30,6 +32,11 @@ def smallest_angle_between(angle1, angle2):
 def log(string, rs: RobotState):
     if DEBUG:
         print(f"{rs.agent_name}: {string}")
+
+def predict_time_func(ball_dist):
+    """Used for choosing how long to predict for in the goalie. ball_dist between 0 and 1.8, out between 0ms and 1024ms."""
+    # https://www.desmos.com/calculator/o8cl5z537b
+    return min(763 * ball_dist, 1024)
 
 # Calculates the speed to run motors given a movement and rotation speed
 # Returns motor values in the format [left, right]
@@ -88,3 +95,17 @@ def kite_point(rs: RobotState, centre_x, centre_y, radius, reversed):
                 True if distance_error < KITE_THRESH else False]
 
 
+def predict_object(current_pos, velocity, millis):
+    """Predicts the given object num_ticks into the future.
+
+    Args:
+        current_pos (list): current x,y position of object
+        velocity (list): current velocity (x,y velocity) of object 
+        millis (int): number of simulator milliseconds to predict into future (should be multiple of 32)
+
+    Returns:
+        list: predicted x,y position of object num_millis into the future
+    """
+    new_offset = [velocity[0] * millis, velocity[1] * millis]
+    # dispatch new position
+    return [current_pos[0] + new_offset[0], current_pos[1] + new_offset[1]]

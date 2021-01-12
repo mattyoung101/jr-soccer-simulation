@@ -9,8 +9,8 @@ from recorder.recorder import VideoRecordAssistant
 
 automatic_mode = False
 
-TEAM_YELLOW = "The Yellows"
-TEAM_BLUE = "The Blues"
+TEAM_YELLOW = "Testing"
+TEAM_BLUE = "Omicron"
 
 
 def output_path(

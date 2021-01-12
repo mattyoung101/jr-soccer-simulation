@@ -1,8 +1,8 @@
-"""
-Agent for RoboCup Jr 2021 Simulation project.
-Copyright (c) 2020 Team Omicron (Ethan Lo, Matt Young, James Talkington).
-Based on the rcj_soccer_player controller that ships with the simulator.
-"""
+# This file is part of Team Omicron's RoboCup Jr simulation league agent.
+# Copyright (c) 2020 Team Omicron (Ethan Lo, Matt Young, James Talkington).
+# 
+# Based on the rcj_soccer_player controller that ships with the simulator.
+
 import math
 
 from rcj_soccer_robot import RCJSoccerRobot, TIME_STEP
@@ -38,6 +38,13 @@ class OmicronAgent(RCJSoccerRobot):
                 self.rs.agent_pos = [-data[self.name.upper()]['y'], -data[self.name.upper()]['x']]
                 self.rs.ball_pos = [-data['ball']['y'], -data['ball']['x']]
                 self.rs.agent_heading = data[self.name.upper()]['orientation']
+                # NOTE: according to my reading of the docs, on all our controllers, the synchronization field is set
+                # to TRUE, which means that robot.step(TIME_STEP) always returns zero (not delta time), so I assume
+                # that means it always elapses by that time (although I am not sure!)
+                # docs ref: https://cyberbotics.com/doc/reference/robot#wb_robot_step
+                self.rs.simulation_time += TIME_STEP
+                # note that this will only be called if the initial position has not yet been set in the predictor
+                self.rs.ball_predictor.set_initial_pos(self.rs.agent_pos)
 
                 # Update state machine
                 if self.rs.agent_id in [3, 2]:

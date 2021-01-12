@@ -1,5 +1,5 @@
 from fsm import RobotState, StateMachine, FSMState
-from utils import move_to_point, kite_point, sign, log, calc_motors, smallest_angle_between
+from utils import move_to_point, kite_point, sign, log, calc_motors, smallest_angle_between, predict_object, predict_time_func
 from math import sqrt, copysign, atan2, pi
 
 # === PARAMETERS === #
@@ -23,9 +23,9 @@ AIM_TO_CIRCLE = 0.5
 YEET_TO_AIM = 0.3
 
 # Goalie (Defend) FSM
-IDLE_DIST = 0.2
+IDLE_DIST = 0.3
 IDLE_KP = 1.5
-SURGE_DIST = 0.3
+SURGE_DIST = 0.35
 BALL_TOO_CLOSE = 0.4
 BALL_SAFE_DIST = 0.41
 
@@ -79,7 +79,7 @@ class StateAttackChase(FSMState):
         if distance <= CHASE_TO_CIRCLE:
             fsm.change_state(rs, StateAttackCircle())
             return
-        if rs.agent_name[1] == '2' and rs.ball_pos[1] > rs.agent_pos[1]:
+        if rs.agent_id == 2 and rs.ball_pos[1] > rs.agent_pos[1]:
             fsm.change_state(rs, StateAttackPush())
             return
 
@@ -134,7 +134,14 @@ class StateDefendIdle(FSMState):
     def enter(self, fsm, rs):
         log("Entering defend idle", rs)
 
-    def update(self, fsm, rs):
+    def update(self, fsm, rs: RobotState):
+        # update ball predictions
+        ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
+        actual_ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(actual_ball_dist)
+        predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
+        print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+
         rs.out = move_to_point(rs, 0, IDLE_DIST - GOAL_DIST, True)
         distance = sqrt(pow(rs.ball_pos[0], 2) + pow(rs.ball_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
         if rs.out[1]:
@@ -153,6 +160,13 @@ class StateDefendSurge(FSMState):
         log("Entering defend surge", rs)
 
     def update(self, fsm, rs):
+        # update ball predictions
+        ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
+        actual_ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(actual_ball_dist)
+        predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
+        print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+
         rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
         ball_dist = sqrt(pow(rs.ball_pos[0], 2) + pow(rs.ball_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
         robot_dist = sqrt(pow(rs.agent_pos[0], 2) + pow(rs.agent_pos[1] + (GOAL_DIST - IDLE_DIST), 2))

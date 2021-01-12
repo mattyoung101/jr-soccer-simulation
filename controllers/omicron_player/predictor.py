@@ -4,11 +4,18 @@ class Predictor:
     """
     The predictor records velocities of a simulation object to extrapolate its position in the future.
     """
-    def __init__(self, initial_pos):
-        self.last_pos = initial_pos # x,y
+    def __init__(self):
+        self.last_pos = [0, 0] # x,y
         self.last_delta = [0, 0] # delta x, delta y
         self.last_time = 0 # scalar
-        self.last_velocity = [0, 0] 
+        self.last_velocity = [0, 0] # not currently used but recorded anyway
+        self.has_set_initial = False # for setting the initial position so we don't get weird values on first call
+
+    def set_initial_pos(self, current_pos):
+        if not self.has_set_initial:
+            print("Predictor is setting initial robot position")
+            self.last_pos = current_pos
+            self.has_set_initial = True
 
     def push_measurement(self, current_pos, current_time):
         """Push position data to the predictor. In exchange, you get velocity measurements back.
