@@ -8,11 +8,11 @@ from math import sqrt, copysign, atan2, pi
 GOAL_DIST = 0.85
 
 # Striker (Attack) FSM
-HOVER_DIST = 0.5
-HOVER_TO_PUSH = 0.4
-BALL_TOO_FAR = 0.41
+HOVER_DIST = 0.75
+HOVER_TO_PUSH = 1.2
+BALL_TOO_FAR = 1.4
 PUSHER_THRESH = 0.1
-BEHIND_THRESH = pi * 1/3
+BEHIND_THRESH = 0.6
 
 CHASE_TO_CIRCLE = 0.3 # TODO GIVE THESE LESS SHITTY NAMES
 CIRCLE_TO_CHASE = 0.4
@@ -24,50 +24,12 @@ YEET_TO_AIM = 0.3
 
 # Goalie (Defend) FSM
 IDLE_DIST = 0.3
-IDLE_KP = 1.5
-SURGE_DIST = 0.35
-BALL_TOO_CLOSE = 0.4
-BALL_SAFE_DIST = 0.41
+SURGE_THRESH = 0.55
+SURGE_DIST = 0.6
+BALL_SAFE_DIST = 0.6
 
 
 # === ATTACK FSM === #
-
-class StateAttackHover(FSMState):
-    def enter(self, fsm, rs):
-        log("Entering attack hover", rs)
-
-    def update(self, fsm, rs):
-        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
-        rs.out = move_to_point(rs, HOVER_DIST * (rs.ball_pos[0] / (rs.ball_pos[1] + GOAL_DIST)), HOVER_DIST - GOAL_DIST, True)
-        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
-        if (rs.out[1] and distance < HOVER_TO_PUSH):
-            fsm.change_state(rs, StateAttackPush())
-            return
-        if (-BEHIND_THRESH - pi/2) <= direction <= (BEHIND_THRESH - pi/2):
-            fsm.change_state(rs, StateAttackChase())
-            return
-
-    def exit(self, fsm, rs):
-        log("Exiting attack hover", rs)
-
-class StateAttackPush(FSMState):
-    def enter(self, fsm, rs):
-        log("Entering attack push", rs)
-
-    def update(self, fsm, rs):
-        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
-        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
-        rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
-        # print(direction, (-BEHIND_THRESH - pi/2), (BEHIND_THRESH - pi/2), (-BEHIND_THRESH - pi/2) <= direction <= (BEHIND_THRESH - pi/2))
-        if (-BEHIND_THRESH - pi/2) <= direction <= (BEHIND_THRESH - pi/2):
-            fsm.change_state(rs, StateAttackChase())
-            return
-        if rs.ball_pos[1] > PUSHER_THRESH or distance > BALL_TOO_FAR:
-            fsm.change_state(rs, StateAttackHover())
-            return
-
-    def exit(self, fsm, rs):
-        log("Exiting attack push", rs)
 
 class StateAttackChase(FSMState):
     def enter(self, fsm, rs):
@@ -78,9 +40,6 @@ class StateAttackChase(FSMState):
         distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
         if distance <= CHASE_TO_CIRCLE:
             fsm.change_state(rs, StateAttackCircle())
-            return
-        if rs.agent_id == 2 and rs.ball_pos[1] > rs.agent_pos[1]:
-            fsm.change_state(rs, StateAttackPush())
             return
 
     def exit(self, fsm, rs):
@@ -96,16 +55,12 @@ class StateAttackCircle(FSMState):
         direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0]) - goal_angle
         direction = (direction + pi) % (2*pi) - pi
         # Circle the ball based on which side the robot approaches it
-        rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, sign(direction) < 0)
+        rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, sign(direction) < 0) 
         if (abs(direction) < FORWARD_ANGLE_ENTER):
             fsm.change_state(rs, StateAttackYeet())
             return
         if distance >= CIRCLE_TO_CHASE:
             fsm.change_state(rs, StateAttackChase())
-            return
-        
-        if rs.agent_id == 2 and rs.ball_pos[1] > rs.agent_pos[1]:
-            fsm.change_state(rs, StateAttackPush())
             return
 
     def exit(self, fsm, rs):
@@ -128,32 +83,115 @@ class StateAttackYeet(FSMState):
         log("Exiting attack yeet", rs)
 
 
-# === DEFEND FSM === #
+# === MID FSM === #
 
-class StateDefendIdle(FSMState):
+class StateMidHover(FSMState):
     def enter(self, fsm, rs):
-        log("Entering defend idle", rs)
+        log("Entering mid hover", rs)
 
-    def update(self, fsm, rs: RobotState):
+    def update(self, fsm, rs):
         # update ball predictions
         ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
-        actual_ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
-        predict_time = predict_time_func(actual_ball_dist)
+        ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(ball_dist)
         predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
-        print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+        # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
 
-        rs.out = move_to_point(rs, 0, IDLE_DIST - GOAL_DIST, True)
-        distance = sqrt(pow(rs.ball_pos[0], 2) + pow(rs.ball_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
-        if rs.out[1]:
-            direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
-            error = smallest_angle_between(direction, rs.agent_heading)
-            rs.out = [calc_motors(0, IDLE_KP * error), True]
-        if distance <= BALL_TOO_CLOSE:
+        rs.out = move_to_point(rs, HOVER_DIST * (rs.ball_pos[0] / (rs.ball_pos[1] + GOAL_DIST)), HOVER_DIST - GOAL_DIST, False)
+        distance = predicted_ball[1] + GOAL_DIST
+        if distance < HOVER_TO_PUSH or distance < BEHIND_THRESH:
+            fsm.change_state(rs, StateMidChase())
+
+    def exit(self, fsm, rs):
+        log("Exiting mid hover", rs)
+
+class StateMidChase(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering mid chase", rs)
+
+    def update(self, fsm, rs):
+        # update ball predictions
+        ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
+        ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(ball_dist)
+        predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
+        # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+
+        rs.out = move_to_point(rs, predicted_ball[0], predicted_ball[1], False)
+        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
+        if distance <= CHASE_TO_CIRCLE:
+            fsm.change_state(rs, StateMidCircle())
+            return
+        if rs.ball_pos[1] < BEHIND_THRESH - GOAL_DIST:
+            fsm.change_state(rs, StateMidHover())
+            return
+
+    def exit(self, fsm, rs):
+        log("Exiting mid chase", rs)
+
+class StateMidCircle(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering mid circle", rs)
+
+    def update(self, fsm, rs):
+        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
+        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0]) - pi/2
+        direction = (direction + pi) % (2*pi) - pi
+        # Circle the ball based on which side the robot approaches it
+        rs.out = kite_point(rs, rs.ball_pos[0], rs.ball_pos[1], CIRCLE_OFFSET, sign(direction) < 0) 
+        if (abs(direction) < FORWARD_ANGLE_ENTER):
+            fsm.change_state(rs, StateMidYeet())
+            return
+        if distance >= CIRCLE_TO_CHASE:
+            fsm.change_state(rs, StateMidChase())
+            return
+        
+        if rs.ball_pos[1] > BALL_TOO_FAR - GOAL_DIST:
+            fsm.change_state(rs, StateMidHover())
+            return
+
+    def exit(self, fsm, rs):
+        log("Exiting mid circle", rs)
+
+class StateMidYeet(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering mid yeet", rs)
+
+    def update(self, fsm, rs):
+        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
+        direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
+        rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
+        if distance >= CIRCLE_TO_CHASE or (abs(direction) > FORWARD_ANGLE_EXIT):
+            fsm.change_state(rs, StateMidCircle())
+            return
+
+    def exit(self, fsm, rs):
+        log("Exiting mid yeet", rs)
+
+
+# === DEFEND FSM === #
+
+class StateDefendHover(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering defend hover", rs)
+
+    def update(self, fsm, rs):
+        # update ball predictions
+        ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
+        ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(ball_dist)
+        predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
+        # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+        
+        # direction = atan2(predicted_ball[1] - rs.agent_pos[1], predicted_ball[0] - rs.agent_pos[0])
+        rs.out = move_to_point(rs, IDLE_DIST * (rs.ball_pos[0] / (rs.ball_pos[1] + GOAL_DIST)), IDLE_DIST - GOAL_DIST, False)
+        distance = predicted_ball[1] + GOAL_DIST
+        if distance < SURGE_THRESH:
             fsm.change_state(rs, StateDefendSurge())
             return
 
     def exit(self, fsm, rs):
-        log("Exiting defend idle", rs)
+        log("Exiting defend hover", rs)
 
 class StateDefendSurge(FSMState):
     def enter(self, fsm, rs):
@@ -165,13 +203,13 @@ class StateDefendSurge(FSMState):
         actual_ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
         predict_time = predict_time_func(actual_ball_dist)
         predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
-        print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+        # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
 
-        rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
-        ball_dist = sqrt(pow(rs.ball_pos[0], 2) + pow(rs.ball_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
-        robot_dist = sqrt(pow(rs.agent_pos[0], 2) + pow(rs.agent_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
+        rs.out = move_to_point(rs, predicted_ball[0], predicted_ball[1], False)
+        ball_dist = rs.ball_pos[1] + GOAL_DIST
+        robot_dist = rs.agent_pos[1] + GOAL_DIST
         if ball_dist >= BALL_SAFE_DIST or robot_dist >= SURGE_DIST:
-            fsm.change_state(rs, StateDefendIdle())
+            fsm.change_state(rs, StateDefendHover())
             return
 
     def exit(self, fsm, rs):

@@ -36,7 +36,7 @@ def log(string, rs: RobotState):
 def predict_time_func(ball_dist):
     """Used for choosing how long to predict for in the goalie. ball_dist between 0 and 1.8, out between 0ms and 1024ms."""
     # https://www.desmos.com/calculator/o8cl5z537b
-    return min(763 * ball_dist, 1024)
+    return min(1500 * ball_dist, 1024)
 
 # Calculates the speed to run motors given a movement and rotation speed
 # Returns motor values in the format [left, right]

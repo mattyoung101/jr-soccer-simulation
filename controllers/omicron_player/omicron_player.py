@@ -18,15 +18,18 @@ class OmicronAgent(RCJSoccerRobot):
         self.rs.agent_name = self.name
         self.rs.agent_id = self.player_id
         self.attack_fsm = StateMachine()
+        self.mid_fsm = StateMachine()
         self.defend_fsm = StateMachine()
 
         # setup our state machines
         if self.player_id == 3:
-            self.attack_fsm.change_state(self.rs, states.StateAttackChase())
+            # self.attack_fsm.change_state(self.rs, states.StateAttackChase())
+            print(None)
         elif self.player_id == 2:
-            self.attack_fsm.change_state(self.rs, states.StateAttackHover())
+            self.mid_fsm.change_state(self.rs, states.StateMidHover())
         elif self.player_id == 1:
-            self.defend_fsm.change_state(self.rs, states.StateDefendIdle())
+            # self.defend_fsm.change_state(self.rs, states.StateDefendHover())
+            print(None)
 
     def run(self):
         while self.robot.step(TIME_STEP) != -1:
@@ -47,10 +50,14 @@ class OmicronAgent(RCJSoccerRobot):
                 self.rs.ball_predictor.set_initial_pos(self.rs.agent_pos)
 
                 # Update state machine
-                if self.rs.agent_id in [3, 2]:
-                    self.attack_fsm.update(self.rs)
+                if self.rs.agent_id == 3:
+                    # self.attack_fsm.update(self.rs)
+                    print(None)
+                elif self.rs.agent_id == 2:
+                    self.mid_fsm.update(self.rs)
                 elif self.rs.agent_id == 1:
-                    self.defend_fsm.update(self.rs)
+                    # self.defend_fsm.update(self.rs)
+                    print(None)
                 
                 # Update motors
                 self.left_motor.setVelocity(self.rs.out[0][0])
