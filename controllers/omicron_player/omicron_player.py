@@ -11,6 +11,10 @@ import states
 import utils
 from fsm import RobotState, StateMachine
 
+ROBOT_1 = True
+ROBOT_2 = True
+ROBOT_3 = True
+
 class OmicronAgent(RCJSoccerRobot):
     def setup(self):
         # TODO consider moving this to an __init__ constructor? will it work?
@@ -23,13 +27,11 @@ class OmicronAgent(RCJSoccerRobot):
 
         # setup our state machines
         if self.player_id == 3:
-            # self.attack_fsm.change_state(self.rs, states.StateAttackChase())
-            print(None)
+            self.attack_fsm.change_state(self.rs, states.StateAttackChase())
         elif self.player_id == 2:
             self.mid_fsm.change_state(self.rs, states.StateMidHover())
         elif self.player_id == 1:
-            # self.defend_fsm.change_state(self.rs, states.StateDefendHover())
-            print(None)
+            self.defend_fsm.change_state(self.rs, states.StateDefendHover())
 
     def run(self):
         while self.robot.step(TIME_STEP) != -1:
@@ -38,9 +40,14 @@ class OmicronAgent(RCJSoccerRobot):
 
                 # Update RobotState
                 # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
-                self.rs.agent_pos = [-data[self.name.upper()]['y'], -data[self.name.upper()]['x']]
-                self.rs.ball_pos = [-data['ball']['y'], -data['ball']['x']]
-                self.rs.agent_heading = data[self.name.upper()]['orientation']
+                if self.name[0].upper() == 'B':
+                    self.rs.agent_pos = [-data[self.name.upper()]['y'], -data[self.name.upper()]['x']]
+                    self.rs.ball_pos = [-data['ball']['y'], -data['ball']['x']]
+                    self.rs.agent_heading = data[self.name.upper()]['orientation']
+                else:
+                    self.rs.agent_pos = [data[self.name.upper()]['y'], data[self.name.upper()]['x']]
+                    self.rs.ball_pos = [data['ball']['y'], data['ball']['x']]
+                    self.rs.agent_heading = (data[self.name.upper()]['orientation'] + math.pi) % (2*math.pi)
                 # NOTE: according to my reading of the docs, on all our controllers, the synchronization field is set
                 # to TRUE, which means that robot.step(TIME_STEP) always returns zero (not delta time), so I assume
                 # that means it always elapses by that time (although I am not sure!)
@@ -50,15 +57,15 @@ class OmicronAgent(RCJSoccerRobot):
                 self.rs.ball_predictor.set_initial_pos(self.rs.agent_pos)
 
                 # Update state machine
-                if self.rs.agent_id == 3:
-                    # self.attack_fsm.update(self.rs)
-                    print(None)
-                elif self.rs.agent_id == 2:
+                if self.rs.agent_id == 3 and ROBOT_3:
+                    self.attack_fsm.update(self.rs)
+                elif self.rs.agent_id == 2 and ROBOT_2:
                     self.mid_fsm.update(self.rs)
-                elif self.rs.agent_id == 1:
-                    # self.defend_fsm.update(self.rs)
-                    print(None)
-                
+                elif self.rs.agent_id == 1 and ROBOT_1:
+                    self.defend_fsm.update(self.rs)                
+                else:
+                    continue
+               
                 # Update motors
                 self.left_motor.setVelocity(self.rs.out[0][0])
                 self.right_motor.setVelocity(self.rs.out[0][1])
