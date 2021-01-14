@@ -40,11 +40,11 @@ class OmicronAgent(RCJSoccerRobot):
             print(f"IPC port set to: {self.rs.ipc_port}")
 
             if self.player_id == 1:
-                print("This agent is a SERVER")
+                print(f"Agent {self.player_id} acting as SERVER")
                 self.rs.ipc_server = ipc.IPCServer(self.rs.ipc_port)
                 self.rs.ipc_server.launch()
             else:
-                print("This agent is a CLIENT")
+                print(f"Agent {self.player_id} acting as CLIENT")
                 self.rs.ipc_client = ipc.IPCClient(self.rs.ipc_port)
                 # don't establish connection yet (possible race condition), instead wait a bit
         else:
@@ -56,7 +56,7 @@ class OmicronAgent(RCJSoccerRobot):
                 data = self.get_new_data()
 
                 # after a wait time has expired, connect to IPC
-                if self.rs.ipc_client is not None and not self.rs.ipc_client.is_connected:
+                if self.rs.ipc_client is not None and not self.rs.ipc_client.connected:
                     pass
                     # TODO connect
 

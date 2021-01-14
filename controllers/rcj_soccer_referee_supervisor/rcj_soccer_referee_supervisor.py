@@ -9,7 +9,7 @@ from recorder.recorder import VideoRecordAssistant
 
 automatic_mode = False
 
-TEAM_YELLOW = "Testing"
+TEAM_YELLOW = "Idiots"
 TEAM_BLUE = "Omicron"
 
 
