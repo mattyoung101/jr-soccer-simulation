@@ -10,6 +10,7 @@ import fsm
 import states
 import utils
 from fsm import RobotState, StateMachine
+import ipc
 
 ROBOT_1 = True
 ROBOT_2 = True
@@ -33,10 +34,31 @@ class OmicronAgent(RCJSoccerRobot):
         elif self.player_id == 1:
             self.defend_fsm.change_state(self.rs, states.StateDefendHover())
 
+        # configure IPC
+        if utils.IPC_ENABLED:
+            self.rs.ipc_port = utils.ipc_generate_port()
+            print(f"IPC port set to: {self.rs.ipc_port}")
+
+            if self.player_id == 1:
+                print("This agent is a SERVER")
+                self.rs.ipc_server = ipc.IPCServer(self.rs.ipc_port)
+                self.rs.ipc_server.launch()
+            else:
+                print("This agent is a CLIENT")
+                self.rs.ipc_client = ipc.IPCClient(self.rs.ipc_port)
+                # don't establish connection yet (possible race condition), instead wait a bit
+        else:
+            print("IPC is disabled, no inter-robot comms will be performed")
+
     def run(self):
         while self.robot.step(TIME_STEP) != -1:
             if self.is_new_data():
                 data = self.get_new_data()
+
+                # after a wait time has expired, connect to IPC
+                if self.rs.ipc_client is not None and not self.rs.ipc_client.is_connected:
+                    pass
+                    # TODO connect
 
                 # Update RobotState
                 # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???

@@ -1,8 +1,13 @@
-from math import atan2, sqrt, pi, copysign
+from math import atan2, sqrt, pi, copysign, ceil
 from fsm import RobotState
+import time
+import random
 
 # true if logging should be enabled (probably disable in comp)
 DEBUG = True
+# true if inter-process communication between robots is allowed
+IPC_ENABLED = True
+IPC_PORT = 42708
 
 # CONTANTS
 WHEEL_RADIUS = 0.02
@@ -36,7 +41,17 @@ def log(string, rs: RobotState):
 def predict_time_func(ball_dist):
     """Used for choosing how long to predict for in the goalie. ball_dist between 0 and 1.8, out between 0ms and 1024ms."""
     # https://www.desmos.com/calculator/o8cl5z537b
-    return min(1600 * sqrt(ball_dist), 2048)
+    return min(1800 * sqrt(ball_dist), 2048)
+
+# https://stackoverflow.com/a/26454777/5007892
+def round_nearest(x, to):
+    return int(ceil(x / to)) * to
+
+def ipc_generate_port():
+    """Generates a unique port for IPC since, because we can't close the port (we don't know when the controller is quit),
+    we could ger refused access to a static port. Note: this can fail if timing is unfortunate, but should be very rare."""
+    curtime = round_nearest(time.time(), 5.0)
+    return random.Random(curtime).randint(20_000, 45_000)
 
 # Calculates the speed to run motors given a movement and rotation speed
 # Returns motor values in the format [left, right]

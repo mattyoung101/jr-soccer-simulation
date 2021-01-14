@@ -55,8 +55,6 @@ while robot.step(TIME_STEP) != -1:
 
         data = parse_supervisor_msg(packet)
 
-        continue
-
         # Get the position of our robot
         robot_pos = data[name.upper()]
         # Get the position of the ball

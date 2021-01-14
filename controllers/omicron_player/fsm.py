@@ -15,6 +15,9 @@ class RobotState:
         self.simulation_time = 0 # in simulation milliseconds
         self.ball_pos = [0, 0]
         self.ball_predictor = Predictor() # per agent ball predictor
+        self.ipc_server = None
+        self.ipc_client = None
+        self.ipc_port = None
 
         # outputs
         self.out = [[0, 0], False] # Left, Right, Flag

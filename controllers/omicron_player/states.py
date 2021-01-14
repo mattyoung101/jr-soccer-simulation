@@ -185,7 +185,7 @@ class StateDefendHover(FSMState):
         ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
         predict_time = predict_time_func(ball_dist)
         predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
-        # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+        #print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
         
         # direction = atan2(predicted_ball[1] - rs.agent_pos[1], predicted_ball[0] - rs.agent_pos[0])
         rs.out = move_to_point(rs, IDLE_DIST * (rs.ball_pos[0] / (rs.ball_pos[1] + GOAL_DIST)), IDLE_DIST - GOAL_DIST, False)
@@ -207,7 +207,7 @@ class StateDefendSurge(FSMState):
         actual_ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
         predict_time = predict_time_func(actual_ball_dist)
         predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
-        # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+        #print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
 
         rs.out = move_to_point(rs, predicted_ball[0], predicted_ball[1], False)
         ball_dist = rs.ball_pos[1] + GOAL_DIST
