@@ -143,9 +143,9 @@ class StateDefendIdle(FSMState):
         print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
 
         rs.out = move_to_point(rs, 0, IDLE_DIST - GOAL_DIST, True)
-        distance = sqrt(pow(rs.ball_pos[0], 2) + pow(rs.ball_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
+        distance = sqrt(pow(predicted_ball[0], 2) + pow(predicted_ball[1] + (GOAL_DIST - IDLE_DIST), 2))
         if rs.out[1]:
-            direction = atan2(rs.ball_pos[1] - rs.agent_pos[1], rs.ball_pos[0] - rs.agent_pos[0])
+            direction = atan2(predicted_ball[1] - rs.agent_pos[1], predicted_ball[0] - rs.agent_pos[0])
             error = smallest_angle_between(direction, rs.agent_heading)
             rs.out = [calc_motors(0, IDLE_KP * error), True]
         if distance <= BALL_TOO_CLOSE:
@@ -165,10 +165,10 @@ class StateDefendSurge(FSMState):
         actual_ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
         predict_time = predict_time_func(actual_ball_dist)
         predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
-        print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
+        #print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
 
-        rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
-        ball_dist = sqrt(pow(rs.ball_pos[0], 2) + pow(rs.ball_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
+        rs.out = move_to_point(rs, predicted_ball[0], predicted_ball[1], False)
+        ball_dist = sqrt(pow(predicted_ball[0], 2) + pow(predicted_ball[1] + (GOAL_DIST - IDLE_DIST), 2))
         robot_dist = sqrt(pow(rs.agent_pos[0], 2) + pow(rs.agent_pos[1] + (GOAL_DIST - IDLE_DIST), 2))
         if ball_dist >= BALL_SAFE_DIST or robot_dist >= SURGE_DIST:
             fsm.change_state(rs, StateDefendIdle())
