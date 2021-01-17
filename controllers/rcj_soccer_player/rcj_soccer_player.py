@@ -36,11 +36,11 @@ team = name[0]
 player_id = int(name[1])
 
 
-receiver = robot.getReceiver("receiver")
+receiver = robot.getDevice("receiver")
 receiver.enable(TIME_STEP)
 
-left_motor = robot.getMotor("left wheel motor")
-right_motor = robot.getMotor("right wheel motor")
+left_motor = robot.getDevice("left wheel motor")
+right_motor = robot.getDevice("right wheel motor")
 
 left_motor.setPosition(float('+inf'))
 right_motor.setPosition(float('+inf'))

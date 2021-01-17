@@ -1,6 +1,9 @@
-# Inter-process communicaton between robots
-# NOTE: THIS MAY BE ILLEGAL depending on how you interpret the rules (it can be easily disabled for this reason)
-# We are waiting for confirmation: https://github.com/RoboCupJuniorTC/rcj-soccer-sim/issues/29#issuecomment-758640512
+# Inter-process communicaton between robots by using IPC over a local TCP socket
+# Legality: Should be OK, however I can only guarantee this for the Feb 2021 RoboCup Jr competition.
+# You should verify legality for any future comps. We cannot be held liable if you use this code in future and do not
+# disable IPC if it becomes illegal!
+# For reference see my issue here: https://github.com/RoboCupJuniorTC/rcj-soccer-sim/issues/29
+
 import time
 import math
 import socket
