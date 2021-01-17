@@ -28,9 +28,9 @@ MID_ANGLE_EXIT = 1
 
 # Goalie (Defend) FSM
 IDLE_DIST = 0.3
-SURGE_THRESH = 0.55
-SURGE_DIST = 0.6
-BALL_SAFE_DIST = 0.6
+SURGE_THRESH = 0.45
+SURGE_DIST = 0.5
+BALL_SAFE_DIST = 0.5
 
 
 # === ATTACK FSM === #
@@ -40,9 +40,13 @@ class StateAttackChase(FSMState):
         log("Entering attack chase", rs)
 
     def update(self, fsm, rs):
+        ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
+        ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(ball_dist)
+        predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
+
         rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
-        distance = sqrt(pow(rs.ball_pos[0] - rs.agent_pos[0], 2) + pow(rs.ball_pos[1] - rs.agent_pos[1], 2))
-        if distance <= CHASE_TO_CIRCLE:
+        if ball_dist <= CHASE_TO_CIRCLE:
             fsm.change_state(rs, StateAttackCircle())
             return
 

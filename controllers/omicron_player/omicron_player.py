@@ -65,11 +65,11 @@ class OmicronAgent(RCJSoccerRobot):
                 if self.name[0].upper() == 'B':
                     self.rs.agent_pos = [-data[self.name.upper()]['y'], -data[self.name.upper()]['x']]
                     self.rs.ball_pos = [-data['ball']['y'], -data['ball']['x']]
-                    self.rs.agent_heading = data[self.name.upper()]['orientation']
+                    self.rs.agent_heading = (data[self.name.upper()]['orientation'] + math.pi) % (2*math.pi)
                 else:
                     self.rs.agent_pos = [data[self.name.upper()]['y'], data[self.name.upper()]['x']]
                     self.rs.ball_pos = [data['ball']['y'], data['ball']['x']]
-                    self.rs.agent_heading = (data[self.name.upper()]['orientation'] + math.pi) % (2*math.pi)
+                    self.rs.agent_heading = data[self.name.upper()]['orientation']
                 # NOTE: according to my reading of the docs, on all our controllers, the synchronization field is set
                 # to TRUE, which means that robot.step(TIME_STEP) always returns zero (not delta time), so I assume
                 # that means it always elapses by that time (although I am not sure!)
@@ -89,8 +89,8 @@ class OmicronAgent(RCJSoccerRobot):
                     continue
                
                 # Update motors
-                self.left_motor.setVelocity(self.rs.out[0][0])
-                self.right_motor.setVelocity(self.rs.out[0][1])
+                self.left_motor.setVelocity(-self.rs.out[0][1])
+                self.right_motor.setVelocity(-self.rs.out[0][0])
 
 omicron_agent = OmicronAgent()
 omicron_agent.setup()
