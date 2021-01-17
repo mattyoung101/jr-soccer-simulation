@@ -41,7 +41,7 @@ def log(string, rs: RobotState):
 def predict_time_func(ball_dist):
     """Used for choosing how long to predict for in the goalie. ball_dist between 0 and 1.8, out between 0ms and 1024ms."""
     # https://www.desmos.com/calculator/o8cl5z537b
-    return min(1200 * sqrt(ball_dist), 2048)
+    return min(1500 * sqrt(ball_dist), 2048)
 
 # https://stackoverflow.com/a/26454777/5007892
 def round_nearest(x, to):
