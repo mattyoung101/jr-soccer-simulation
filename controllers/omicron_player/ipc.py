@@ -11,7 +11,7 @@ import sys
 from multiprocessing import Process
 from dataclasses import dataclass
 import json
-import fcntl
+#import fcntl
 from enum import Enum
 
 # CLIENT {"message": "connect", "agent_id": 0} -> SERVER {"message": "ok"}
