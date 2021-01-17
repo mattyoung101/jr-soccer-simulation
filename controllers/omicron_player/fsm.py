@@ -45,7 +45,6 @@ class StateMachine:
         """
         if self.current_state is not None:
             self.current_state.exit(self, rs)
-        
         self.current_state = new_state
         self.current_state.enter(self, rs)
 

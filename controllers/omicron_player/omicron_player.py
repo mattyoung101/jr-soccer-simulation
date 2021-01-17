@@ -4,7 +4,6 @@
 # Based on the rcj_soccer_player controller that ships with the simulator.
 
 import math
-
 from rcj_soccer_robot import RCJSoccerRobot, TIME_STEP
 import fsm
 import states
@@ -56,9 +55,10 @@ class OmicronAgent(RCJSoccerRobot):
                 data = self.get_new_data()
 
                 # after a wait time has expired, connect to IPC
-                if self.rs.ipc_client is not None and not self.rs.ipc_client.connected:
-                    pass
-                    # TODO connect
+                if self.rs.ipc_client is not None and self.rs.ipc_client.status == ipc.IPCStatus.DISCONNECTED:
+                    self.rs.ipc_client.connect()
+                # elif self.rs.ipc_client is not None and self.rs.ipc_client.status == ipc.IPCStatus.CONNECTED:
+                #     self.rs.ipc_client.check_messages()
 
                 # Update RobotState
                 # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
@@ -87,6 +87,9 @@ class OmicronAgent(RCJSoccerRobot):
                     self.defend_fsm.update(self.rs)                
                 else:
                     continue
+
+                if self.rs.ipc_server is not None:
+                    self.rs.ipc_server.transmit("Hello!")
                
                 # Update motors
                 self.left_motor.setVelocity(-self.rs.out[0][1])
