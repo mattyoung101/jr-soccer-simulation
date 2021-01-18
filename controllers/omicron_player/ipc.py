@@ -8,18 +8,13 @@ import time
 import math
 import socket
 import sys
-from multiprocessing import Process
+from threading import Thread
 from dataclasses import dataclass
 import json
-#import fcntl
 from enum import Enum
 
 # CLIENT {"message": "connect", "agent_id": 0} -> SERVER {"message": "ok"}
 # SERVER {"message": "switch", "role": "defender", "reason": "ball too close"} -> CLIENT {"message": "ok"}
-
-#####
-# FIXME: HANDLE ERRORS PROPERLY!!!!
-#####
 
 ## TODO: Switch to UDP instead of TCP?
 
@@ -33,13 +28,14 @@ class IPCStatus(Enum):
     DISCONNECTED = 0
     CONNECTING = 1
     CONNECTED = 2
+    FAILED = 3
 
 class IPCClient():
     def __init__(self, port: int):
         self.port = port
         self.sock = None
         self.status = IPCStatus.DISCONNECTED
-        self.connect_process = None
+        self.connect_thread = None
         #self.listen_process = None
 
     def __connect_async(self):
@@ -47,10 +43,10 @@ class IPCClient():
         try:
             self.sock.connect(('localhost', self.port))
             print("Successfully connected to server!")
+            self.status = IPCStatus.CONNECTED
         except ConnectionRefusedError as e:
             print(f"[ERROR] Failed to connect to IPCServer socket: {e}", file=sys.stderr)
-
-        self.status = IPCStatus.CONNECTED
+            self.status = IPCStatus.FAILED
 
         # once we're connected, start our receive function
         # self.listen_process = Process(target=self.__listen_async, args=())
@@ -72,30 +68,29 @@ class IPCClient():
 
     def connect(self):
         if self.status != IPCStatus.DISCONNECTED:
-            print("IPCClient is already connected!")
+            print("IPCClient is already connected (or connecting)!")
             return
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(True)
 
         # connect in async too (just in case?)
-        # technically we haven't connected yet, but if we don't set this to be true then omicron_player will keep
-        # attempting to reconnect which we don't want
         self.status = IPCStatus.CONNECTING
-        self.connect_process = Process(target=self.__connect_async, args=())
-        self.connect_process.start()
+        self.connect_thread = Thread(target=self.__connect_async, args=())
+        self.connect_thread.daemon = True
+        self.connect_thread.start()
     
     def disconnect(self):
         self.status = IPCStatus.DISCONNECTED
         self.sock.close()
-        self.connect_process.kill()
-        # self.listen_process.kill()
+        # cannot stop threads in Python, and cannot be bothered to program an exit condition given that
+        # the thread is a daemon and disconnect() is likely never called
 
 class IPCServer():
     def __init__(self, port: int):
         self.port = port
         self.sock = None
         self.clients = []
-        self.join_process = None
+        self.join_thread = None
 
     def __accept(self, num_clients: int):
         print("IPCServer is now accepting clients")
@@ -111,16 +106,18 @@ class IPCServer():
     def launch(self):
         # TCP socket over IP (could also use AF_UNIX but can't find enough docs on that)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # https://docs.python.org/3/howto/sockets.html#ipc
-        # apparently binding to localhost skips a few layers of netcode in the system
         try:
+            # https://docs.python.org/3/howto/sockets.html#ipc
+            # apparently binding to localhost skips a few layers of netcode in the system
             self.sock.bind(('localhost', self.port))
             self.sock.listen(1)
         
             # accept clients in parallel
-            self.join_process = Process(target=self.__accept, args=(2,)) # num_clients = 2
-            self.join_process.start()
+            self.join_thread = Thread(target=self.__accept, args=(2,)) # num_clients = 2
+            self.join_thread.daemon = True
+            self.join_thread.start()
         except Exception as e:
+            # TODO catch a more narrow exception above!
             print(f"[ERROR] Failed to bind/listen server socket: {e} - IPC is now impossible!", file=sys.stderr)
 
     def transmit(self, message):
@@ -130,4 +127,4 @@ class IPCServer():
 
     def terminate(self):
         self.sock.close()
-        self.join_process.kill()
+        # cannot terminate threads in Python, see IPCClient disconnect()

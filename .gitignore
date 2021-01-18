@@ -136,3 +136,4 @@ dmypy.json
 .*.wbproj
 worlds/.test world.wbproj
 *.jsonl
+.vscode/
