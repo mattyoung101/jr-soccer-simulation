@@ -50,7 +50,7 @@ def round_nearest(x, to):
 def ipc_generate_port():
     """Generates a unique port for IPC since, because we can't close the port (we don't know when the controller is quit),
     we could ger refused access to a static port. Note: this can fail if timing is unfortunate, but should be very rare."""
-    curtime = round_nearest(time.time(), 5.0)
+    curtime = round_nearest(time.time(), 2.0)
     return random.Random(curtime).randint(20_000, 45_000)
 
 # Calculates the speed to run motors given a movement and rotation speed
