@@ -44,10 +44,13 @@ class OmicronAgent(RCJSoccerRobot):
                 self.rs.ipc_server.launch()
             else:
                 print(f"Agent {self.player_id} acting as CLIENT")
-                self.rs.ipc_client = ipc.IPCClient(self.rs.ipc_port)
+                self.rs.ipc_client = ipc.IPCClient(self.rs.ipc_port, self.__junk_event_handler)
                 # don't establish connection yet (possible race condition), instead wait a bit
         else:
             print("IPC is disabled, no inter-robot comms will be performed")
+
+    def __junk_event_handler(self, msg):
+        return
 
     def run(self):
         while self.robot.step(TIME_STEP) != -1:

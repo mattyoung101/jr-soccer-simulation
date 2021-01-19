@@ -19,31 +19,37 @@ class IPCStatus(Enum):
     FAILED = 3
 
 class IPCClient():
-    def __init__(self, port: int):
+    def __init__(self, port: int, event_handler):
         self.port = port
         self.status = IPCStatus.DISCONNECTED
+        self.event_handler = event_handler
 
     def __connect_async(self):
-        print(f"Connecting to server on port {self.port}")
-        self.client = Client(("localhost", self.port), "AF_INET")
-        print("Successfully connected to server!")
+        print(f"[IPCClient] [INFO] Connecting to server on port {self.port}")
 
-        # once we're connected, start our receive function
-        self.recv_thread = Thread(target=self.__listen_async, args=())
-        self.recv_thread.daemon = True
-        self.recv_thread.start()
-        self.status = IPCStatus.CONNECTED
+        try:
+            self.client = Client(("localhost", self.port), "AF_INET")
+            print("[IPCClient] [INFO] Successfully connected to server!")
+
+            # once we're connected, start our receive function
+            self.recv_thread = Thread(target=self.__listen_async, args=())
+            self.recv_thread.daemon = True
+            self.recv_thread.start()
+            self.status = IPCStatus.CONNECTED
+        except ConnectionRefusedError as e:
+            print(f"[IPCClient] [ERROR] Unable to connect to server: {e}", file=sys.stderr)
 
     def __listen_async(self):
-        print("IPCClient listening started")
-        
+        print("[IPCClient] [INFO] IPCClient listening started")
+
         while self.status == IPCStatus.CONNECTED:
             msg = self.client.recv()
-            print(f"New message: {msg}")
+            print(f"[IPCClient] [DEBUG] New message: {msg}")
+            self.event_handler(msg)
 
     def connect(self):
         if self.status != IPCStatus.DISCONNECTED:
-            print("IPCClient is already connected (or connecting)!")
+            print("[IPCClient] [ERROR] IPCClient is already connected (or connecting)!")
             return
 
         # connect in async too, in case that blocks for a little bit
@@ -64,13 +70,13 @@ class IPCServer():
         self.clients = []
 
     def __accept(self, num_clients: int):
-        print("IPCServer is now accepting clients")
+        print("[IPCServer] [INFO] Now accepting clients")
 
         # NOTE: client IDs don't necessarily correspond to robot IDs! Client ID 0 is probably NOT robot ID 1!
         for i in range(num_clients):
-            print(f"Waiting for client {i}")
+            print(f"[IPCServer] [DEBUG] Waiting for client {i}")
             conn = self.listener.accept()
-            print(f"Client id {i} on {conn} connected!")
+            print(f"[IPCServer] [DEBUG] Client id {i} has connected")
             self.clients.append(conn)
 
         print("======== All clients have connected to IPCServer successfully! ========")
@@ -83,6 +89,7 @@ class IPCServer():
 
     def transmit(self, message):
         for client in self.clients:
+            print(f"TRANSMITTING TO CLIENT {client}")
             client.send(message)
 
     def terminate(self):
