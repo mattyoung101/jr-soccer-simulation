@@ -57,8 +57,6 @@ class OmicronAgent(RCJSoccerRobot):
                 # after a wait time has expired, connect to IPC
                 if self.rs.ipc_client is not None and self.rs.ipc_client.status == ipc.IPCStatus.DISCONNECTED:
                     self.rs.ipc_client.connect()
-                # elif self.rs.ipc_client is not None and self.rs.ipc_client.status == ipc.IPCStatus.CONNECTED:
-                #     self.rs.ipc_client.check_messages()
 
                 # Update RobotState
                 # Why are these coordinates so messed, it's cartesian coordinates from the underside of the field???
@@ -89,7 +87,7 @@ class OmicronAgent(RCJSoccerRobot):
                     continue
 
                 if self.rs.ipc_server is not None:
-                    self.rs.ipc_server.transmit("Hello!")
+                    self.rs.ipc_server.transmit({"message": "Hello", "is_cool": True})
                
                 # Update motors
                 self.left_motor.setVelocity(-self.rs.out[0][1])
