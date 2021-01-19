@@ -40,7 +40,7 @@ class OmicronAgent(RCJSoccerRobot):
 
             if self.player_id == 1:
                 print(f"Agent {self.player_id} acting as SERVER")
-                self.rs.ipc_server = ipc.IPCServer(self.rs.ipc_port)
+                self.rs.ipc_server = ipc.IPCServer(self.rs.ipc_port, self.__junk_event_handler)
                 self.rs.ipc_server.launch()
             else:
                 print(f"Agent {self.player_id} acting as CLIENT")
@@ -88,9 +88,12 @@ class OmicronAgent(RCJSoccerRobot):
                     self.defend_fsm.update(self.rs)                
                 else:
                     continue
-
+                
+                # Update IPC
                 if self.rs.ipc_server is not None:
-                    self.rs.ipc_server.transmit({"message": "Hello", "is_cool": True})
+                    self.rs.ipc_server.transmit({"message": "server to client"})
+                else:
+                    self.rs.ipc_client.transmit({"message": "client to server"})
                
                 # Update motors
                 self.left_motor.setVelocity(-self.rs.out[0][1])

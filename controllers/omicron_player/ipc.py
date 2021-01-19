@@ -6,7 +6,7 @@
 
 import sys
 from threading import Thread
-from multiprocessing.connection import Listener, Client
+from multiprocessing.connection import Listener, Client, wait
 from enum import Enum
 
 # CLIENT {"message": "connect", "agent_id": 0} -> SERVER {"message": "ok"}
@@ -23,6 +23,7 @@ class IPCClient():
         self.port = port
         self.status = IPCStatus.DISCONNECTED
         self.event_handler = event_handler
+        self.client = None
 
     def __connect_async(self):
         print(f"[IPCClient] [INFO] Connecting to server on port {self.port}")
@@ -47,6 +48,10 @@ class IPCClient():
             print(f"[IPCClient] [DEBUG] New message: {msg}")
             self.event_handler(msg)
 
+    def transmit(self, message):
+        if self.client is not None:
+            self.client.send(message)
+
     def connect(self):
         if self.status != IPCStatus.DISCONNECTED:
             print("[IPCClient] [ERROR] IPCClient is already connected (or connecting)!")
@@ -65,9 +70,10 @@ class IPCClient():
         # the thread is a daemon and disconnect() is likely never called
 
 class IPCServer():
-    def __init__(self, port: int):
+    def __init__(self, port: int, event_handler):
         self.port = port
         self.clients = []
+        self.event_handler = event_handler
 
     def __accept(self, num_clients: int):
         print("[IPCServer] [INFO] Now accepting clients")
@@ -80,6 +86,21 @@ class IPCServer():
             self.clients.append(conn)
 
         print("======== All clients have connected to IPCServer successfully! ========")
+        self.listen_thread = Thread(target=self.__listen)
+        self.listen_thread.daemon = True
+        self.listen_thread.start()
+
+    def __listen(self):
+        print("[IPCServer] [INFO] Now listening to client messages")
+        while self.clients:
+            for conn in wait(self.clients):
+                try:
+                    msg = conn.recv()
+                    print(f"[IPCServer] [INFO] Message from {conn}: {msg}")
+                    self.event_handler(msg)
+                except EOFError:
+                    print(f"[IPCServer] [WARN] A client caused an EOFError! Disconnecting it", file=sys.stderr)
+                    self.clients.remove(conn)
 
     def launch(self):
         self.listener = Listener(("localhost", self.port), "AF_INET")
@@ -89,8 +110,11 @@ class IPCServer():
 
     def transmit(self, message):
         for client in self.clients:
-            print(f"TRANSMITTING TO CLIENT {client}")
-            client.send(message)
+            try:
+                client.send(message)
+            except BrokenPipeError as e:
+                print(f"[IPCServer] [WARN] Failed to transmit message to client: {e}")
+                self.clients.remove(client)
 
     def terminate(self):
         self.listener.close()
