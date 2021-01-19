@@ -27,7 +27,7 @@ class OmicronAgent(RCJSoccerRobot):
 
         # setup our state machines
         if self.player_id == 3:
-            self.attack_fsm.change_state(self.rs, states.StateAttackChase())
+            self.attack_fsm.change_state(self.rs, states.StateAttackKickoff())
         elif self.player_id == 2:
             self.mid_fsm.change_state(self.rs, states.StateMidHover())
         elif self.player_id == 1:

@@ -17,15 +17,16 @@ SIDE_THRESH = 0.5
 
 CHASE_TO_CIRCLE = 0.25 # TODO GIVE THESE LESS SHITTY NAMES
 CIRCLE_TO_CHASE = 0.3
-CIRCLE_OFFSET = 0.15
-FORWARD_ANGLE_ENTER = 0.2
-FORWARD_ANGLE_EXIT = 0.6
+CIRCLE_OFFSET = 0.2
+FORWARD_ANGLE_ENTER = 0.4
+FORWARD_ANGLE_EXIT = 0.8
 AIM_TO_CIRCLE = 0.5
 YEET_TO_AIM = 0.3
 
 # Midfielder (Mid) specific
 MID_ANGLE_ENTER = 0.4
 MID_ANGLE_EXIT = 1
+BALL_VEL_THRESH = 0.002
 
 # Goalie (Defend) FSM
 IDLE_DIST = 0.3
@@ -35,6 +36,20 @@ BALL_SAFE_DIST = 0.5
 
 
 # === ATTACK FSM === #
+
+class StateAttackKickoff(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering attack kickoff", rs)
+    
+    def update(self, fsm, rs):
+        rs.out = move_to_point(rs, rs.ball_pos[0], rs.ball_pos[1], False)
+        if rs.simulation_time > 3008:
+            fsm.change_state(rs, StateAttackChase())
+            return
+    
+    def exit(self, rsm, rs):
+        log("Exiting attack kickoff", rs)
+
 
 class StateAttackChase(FSMState):
     def enter(self, fsm, rs):
@@ -132,17 +147,42 @@ class StateMidHover(FSMState):
         predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
         # print(f"Ball prediction for {predict_time} ticks: {predicted_ball}")
 
+        ball_speed = sqrt(pow(ball_vel[0], 2) + pow(ball_vel[1], 2))
         rs.out = move_to_point(rs, HOVER_DIST * (rs.ball_pos[0] / (rs.ball_pos[1] + GOAL_DIST)), HOVER_DIST - GOAL_DIST, False)
         distance = predicted_ball[1] + GOAL_DIST
         if abs(rs.ball_pos[0]) > SIDE_THRESH or rs.ball_pos[1] < BEHIND_THRESH - GOAL_DIST:
             fsm.change_state(rs, StateMidIdle())
             return
         if distance < HOVER_TO_PUSH or distance < BEHIND_THRESH:
-            fsm.change_state(rs, StateMidChase())
+            if ball_speed < BALL_VEL_THRESH:
+                fsm.change_state(rs, StateMidChase())
+            else:
+                fsm.change_state(rs, StateMidPush())
             return
 
     def exit(self, fsm, rs):
         log("Exiting mid hover", rs)
+
+class StateMidPush(FSMState):
+    def enter(self, fsm, rs):
+        log("Entering mid push", rs)
+    
+    def update(self, fsm, rs):
+        ball_vel = rs.ball_predictor.push_measurement(rs.ball_pos, rs.simulation_time)
+        ball_dist = sqrt(pow(rs.agent_pos[0] - rs.ball_pos[0], 2) + pow(rs.agent_pos[1] - rs.ball_pos[1], 2))
+        predict_time = predict_time_func(ball_dist)
+        predicted_ball = predict_object(rs.ball_pos, ball_vel, predict_time)
+
+        rs.out = move_to_point(rs, predicted_ball[0], predicted_ball[1], False)
+        if abs(rs.ball_pos[0]) > SIDE_THRESH or rs.ball_pos[1] < BEHIND_THRESH - GOAL_DIST:
+            fsm.change_state(rs, StateMidIdle())
+            return
+        if rs.ball_pos[1] < BEHIND_THRESH - GOAL_DIST:
+            fsm.change_state(rs, StateMidHover())
+            return
+    
+    def exit(self, fsm, rs):
+        log("Exiting mid push", rs)
 
 class StateMidChase(FSMState):
     def enter(self, fsm, rs):
