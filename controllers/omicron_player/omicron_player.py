@@ -36,6 +36,9 @@ class OmicronAgent(RCJSoccerRobot):
         # configure IPC
         if utils.IPC_ENABLED:
             self.rs.ipc_port = utils.ipc_generate_port()
+            # in case of Omicron self-play, don't occupy the same port
+            if self.rs.agent_name[0].upper() == "Y":
+                self.rs.ipc_port += 16
             print(f"IPC port set to: {self.rs.ipc_port}")
 
             if self.player_id == 1:

@@ -3,13 +3,13 @@ from fsm import RobotState
 import time
 import random
 
+# CONTANTS
 # true if logging should be enabled (probably disable in comp)
 DEBUG = True
 # true if inter-process communication between robots is allowed
 IPC_ENABLED = True
-IPC_PORT = 42708
 
-# CONTANTS
+# MORE CONSTANTS
 WHEEL_RADIUS = 0.02
 WHEEL_SPACING = 0.085
 MOTOR_MAX_VEL = 10
@@ -48,8 +48,13 @@ def round_nearest(x, to):
     return int(ceil(x / to)) * to
 
 def ipc_generate_port():
-    """Generates a unique port for IPC since, because we can't close the port (we don't know when the controller is quit),
-    we could ger refused access to a static port. Note: this can fail if timing is unfortunate, but should be very rare."""
+    """Generates a unique port for IPC since, because we can't close our TCP socket because Webots does not notify us
+    properly when it is resetting our agent, we could get refused access to a static port if the OS hasn't freed it up
+    since when we were reset. 
+    
+    This port is shared across all Omicron agents as long as they are started in the same two second interval.
+    
+    Note: I think this can fail if timing is unlucky, but should be very rare."""
     curtime = round_nearest(time.time(), 2.0)
     return random.Random(curtime).randint(20_000, 45_000)
 

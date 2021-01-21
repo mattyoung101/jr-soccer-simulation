@@ -10,9 +10,10 @@ from multiprocessing.connection import Listener, Client, wait
 from enum import Enum
 
 # CLIENT {"message": "connect", "agent_id": 0} -> SERVER {"message": "ok"}
-# SERVER {"message": "switch", "role": "defender", "reason": "ball too close"} -> CLIENT {"message": "ok"}
+# SERVER {"message": "switch", "new_role": "defender", "reason": "ball too close", "target_agent": 2}
 
 class IPCStatus(Enum):
+    """Contains the status of an IPC client"""
     DISCONNECTED = 0
     CONNECTING = 1
     CONNECTED = 2
@@ -20,11 +21,18 @@ class IPCStatus(Enum):
 
 class IPCClient():
     def __init__(self, port: int, event_handler):
+        """
+        Args:
+            port (int): port to connect to, domain is set to localhost automatically
+            event_handler (function): function of form `event_handler(msg: dict) -> void` to execute when message is received
+        """
+        # note: event handler takes the form of event_handler(msg: dict) -> void
         self.port = port
         self.status = IPCStatus.DISCONNECTED
         self.event_handler = event_handler
         self.client = None
 
+    # internal method to handle connecting in async
     def __connect_async(self):
         print(f"[IPCClient] [INFO] Connecting to server on port {self.port}")
 
@@ -40,15 +48,17 @@ class IPCClient():
         except ConnectionRefusedError as e:
             print(f"[IPCClient] [ERROR] Unable to connect to server: {e}", file=sys.stderr)
 
+    # internal method to handle receiving messages from the server in parallel
     def __listen_async(self):
         print("[IPCClient] [INFO] IPCClient listening started")
 
         while self.status == IPCStatus.CONNECTED:
             msg = self.client.recv()
-            print(f"[IPCClient] [DEBUG] New message: {msg}")
+            #print(f"[IPCClient] [DEBUG] New message: {msg}")
             self.event_handler(msg)
 
     def transmit(self, message):
+        """Send a message to the server. `message` should be a dict."""
         if self.client is not None:
             self.client.send(message)
 
@@ -71,10 +81,13 @@ class IPCClient():
 
 class IPCServer():
     def __init__(self, port: int, event_handler):
+        # note: event handler takes the form of event_handler(msg: dict) -> void
         self.port = port
         self.clients = []
         self.event_handler = event_handler
 
+    # internal function to accept all clients in parallel
+    # num_clients is the number of clients to expect to connect, it should always be two
     def __accept(self, num_clients: int):
         print("[IPCServer] [INFO] Now accepting clients")
 
@@ -90,19 +103,21 @@ class IPCServer():
         self.listen_thread.daemon = True
         self.listen_thread.start()
 
+    # internal function to handle receiving messages from all connected clients
     def __listen(self):
         print("[IPCServer] [INFO] Now listening to client messages")
         while self.clients:
             for conn in wait(self.clients):
                 try:
                     msg = conn.recv()
-                    print(f"[IPCServer] [INFO] Message from {conn}: {msg}")
+                    #print(f"[IPCServer] [DEBUG] Message from {conn}: {msg}")
                     self.event_handler(msg)
                 except EOFError:
                     print(f"[IPCServer] [WARN] A client caused an EOFError! Disconnecting it", file=sys.stderr)
                     self.clients.remove(conn)
 
     def launch(self):
+        """Starts the server and waits for clients"""
         self.listener = Listener(("localhost", self.port), "AF_INET")
         self.join_thread = Thread(target=self.__accept, args=(2,)) # num_clients = 2
         self.join_thread.daemon = True
