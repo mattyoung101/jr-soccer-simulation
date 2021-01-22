@@ -1,12 +1,14 @@
+# Contains various utilities for Omicron agent
 from math import atan2, sqrt, pi, copysign, ceil
 from fsm import RobotState
 import time
 import random
 
 # CONTANTS
-# true if logging should be enabled (probably disable in comp)
+# true if logging should be enabled (probably disable in comp) (does not disable all prints)
 DEBUG = True
 # true if inter-process communication between robots is allowed
+# IMPORTANT: you MUST set this to False if this method of inter-robot comms becomes illegal!
 IPC_ENABLED = True
 
 # MORE CONSTANTS
@@ -127,5 +129,4 @@ def predict_object(current_pos, velocity, millis):
         list: predicted x,y position of object num_millis into the future
     """
     new_offset = [velocity[0] * millis, velocity[1] * millis]
-    # dispatch new position
     return [current_pos[0] + new_offset[0], current_pos[1] + new_offset[1]]

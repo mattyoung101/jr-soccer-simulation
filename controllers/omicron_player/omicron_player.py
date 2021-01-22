@@ -1,6 +1,4 @@
-# This file is part of Team Omicron's RoboCup Jr simulation league agent.
-# Copyright (c) 2020 Team Omicron (Ethan Lo, Matt Young, James Talkington).
-# 
+# Main file for Omicron agent
 # Based on the rcj_soccer_player controller that ships with the simulator.
 
 import math
@@ -61,7 +59,10 @@ class OmicronAgent(RCJSoccerRobot):
                 data = self.get_new_data()
 
                 # after a wait time has expired, connect to IPC
-                if self.rs.ipc_client is not None and self.rs.ipc_client.status == ipc.IPCStatus.DISCONNECTED:
+                # use the wait time to (hopefully) prevent a race condition
+                delay_time = 256 + (64 * self.rs.agent_id)
+                if (self.rs.ipc_client is not None and self.rs.ipc_client.status == ipc.IPCStatus.DISCONNECTED 
+                        and self.rs.simulation_time >= delay_time):
                     self.rs.ipc_client.connect()
 
                 # Update RobotState

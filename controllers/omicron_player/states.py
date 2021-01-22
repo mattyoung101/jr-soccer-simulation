@@ -1,3 +1,4 @@
+# Contains implementation of FSM code
 from fsm import RobotState, StateMachine, FSMState
 from utils import move_to_point, kite_point, sign, log, calc_motors, smallest_angle_between, predict_object, predict_time_func
 from math import sqrt, copysign, atan2, pi

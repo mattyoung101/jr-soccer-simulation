@@ -1,4 +1,4 @@
-# Inter-process communicaton between robots by using IPC over a local TCP socket
+# Inter-robot communicaton by using IPC over a local TCP socket
 # Legality: Should be OK, however I can only guarantee this for the Feb 2021 RoboCup Jr competition.
 # You should verify legality for any future comps. We cannot be held liable if you use this code in future and do not
 # disable IPC if it becomes illegal!
@@ -53,14 +53,20 @@ class IPCClient():
         print("[IPCClient] [INFO] IPCClient listening started")
 
         while self.status == IPCStatus.CONNECTED:
-            msg = self.client.recv()
-            #print(f"[IPCClient] [DEBUG] New message: {msg}")
-            self.event_handler(msg)
+            try:
+                msg = self.client.recv()
+                print(f"[IPCClient] [DEBUG] New message: {msg}")
+                self.event_handler(msg)
+            except Exception as e:
+                print(f"[IPCClient] Failed to receive from server: {e}")
 
     def transmit(self, message):
         """Send a message to the server. `message` should be a dict."""
         if self.client is not None:
-            self.client.send(message)
+            try:
+                self.client.send(message)
+            except Exception as e:
+                print(f"[IPCClient] Failed to send to server: {e}")
 
     def connect(self):
         if self.status != IPCStatus.DISCONNECTED:
@@ -110,7 +116,7 @@ class IPCServer():
             for conn in wait(self.clients):
                 try:
                     msg = conn.recv()
-                    #print(f"[IPCServer] [DEBUG] Message from {conn}: {msg}")
+                    print(f"[IPCServer] [DEBUG] Message from {conn}: {msg}")
                     self.event_handler(msg)
                 except EOFError:
                     print(f"[IPCServer] [WARN] A client caused an EOFError! Disconnecting it", file=sys.stderr)
