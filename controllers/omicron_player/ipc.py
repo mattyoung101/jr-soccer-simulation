@@ -45,7 +45,7 @@ class IPCClient():
             self.recv_thread.daemon = True
             self.recv_thread.start()
             self.status = IPCStatus.CONNECTED
-        except ConnectionRefusedError as e:
+        except Exception as e:
             print(f"[IPCClient] [ERROR] Unable to connect to server: {e}", file=sys.stderr)
 
     # internal method to handle receiving messages from the server in parallel
@@ -133,7 +133,7 @@ class IPCServer():
         for client in self.clients:
             try:
                 client.send(message)
-            except BrokenPipeError as e:
+            except Exception as e:
                 print(f"[IPCServer] [WARN] Failed to transmit message to client: {e}")
                 self.clients.remove(client)
 
