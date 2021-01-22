@@ -10,6 +10,7 @@ class RobotState:
         # inputs
         self.agent_name = ""
         self.agent_id = -1
+        self.agent_role = 0
         self.agent_pos = [0, 0]
         self.agent_heading = 0
         self.simulation_time = 0 # in simulation milliseconds

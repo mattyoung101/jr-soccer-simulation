@@ -10,6 +10,11 @@ DEBUG = True
 # true if inter-process communication between robots is allowed
 # IMPORTANT: you MUST set this to False if this method of inter-robot comms becomes illegal!
 IPC_ENABLED = True
+# ROBOT ROLE CODES
+ROLE_DEFEND = 0
+ROLE_MID = 1
+ROLE_ATTACK = 2
+ROLE_NONE = 3
 
 # MORE CONSTANTS
 WHEEL_RADIUS = 0.02

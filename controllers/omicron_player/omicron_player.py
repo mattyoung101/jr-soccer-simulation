@@ -9,10 +9,6 @@ import utils
 from fsm import RobotState, StateMachine
 import ipc
 
-ROBOT_1 = True
-ROBOT_2 = True
-ROBOT_3 = True
-
 class OmicronAgent(RCJSoccerRobot):
     def setup(self):
         # TODO consider moving this to an __init__ constructor? will it work?
@@ -23,12 +19,20 @@ class OmicronAgent(RCJSoccerRobot):
         self.mid_fsm = StateMachine()
         self.defend_fsm = StateMachine()
 
-        # setup our state machines
-        if self.player_id == 3:
+        # setup agent roles
+        if self.rs.agent_id == 3:
+            self.rs.agent_role = utils.ROLE_ATTACK
+        elif self.rs.agent_id == 2:
+            self.rs.agent_role = utils.ROLE_MID
+        elif self.rs.agent_id == 1:
+            self.rs.agent_role = utils.ROLE_DEFEND
+
+        # setup state machines
+        if self.rs.agent_role == utils.ROLE_ATTACK:
             self.attack_fsm.change_state(self.rs, states.StateAttackKickoff())
-        elif self.player_id == 2:
+        elif self.rs.agent_role == utils.ROLE_MID:
             self.mid_fsm.change_state(self.rs, states.StateMidHover())
-        elif self.player_id == 1:
+        elif self.rs.agent_role == utils.ROLE_DEFEND:
             self.defend_fsm.change_state(self.rs, states.StateDefendHover())
 
         # configure IPC
@@ -84,11 +88,11 @@ class OmicronAgent(RCJSoccerRobot):
                 self.rs.ball_predictor.set_initial_pos(self.rs.agent_pos)
 
                 # Update state machine
-                if self.rs.agent_id == 3 and ROBOT_3:
+                if self.rs.agent_role == utils.ROLE_ATTACK:
                     self.attack_fsm.update(self.rs)
-                elif self.rs.agent_id == 2 and ROBOT_2:
+                elif self.rs.agent_role == utils.ROLE_MID:
                     self.mid_fsm.update(self.rs)
-                elif self.rs.agent_id == 1 and ROBOT_1:
+                elif self.rs.agent_role == utils.ROLE_DEFEND:
                     self.defend_fsm.update(self.rs)                
                 else:
                     continue
