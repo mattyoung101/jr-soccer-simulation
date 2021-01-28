@@ -100,7 +100,7 @@ class OmicronAgent(RCJSoccerRobot):
                 # Update IPC
                 if self.rs.ipc_server is not None:
                     self.rs.ipc_server.transmit({"message": "server to client"})
-                else:
+                elif self.rs.ipc_client is not None:
                     self.rs.ipc_client.transmit({"message": "client to server"})
                
                 # Update motors

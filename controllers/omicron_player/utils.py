@@ -6,10 +6,10 @@ import random
 
 # CONTANTS
 # true if logging should be enabled (probably disable in comp) (does not disable all prints)
-DEBUG = True
+DEBUG = False
 # true if inter-process communication between robots is allowed
 # IMPORTANT: you MUST set this to False if this method of inter-robot comms becomes illegal!
-IPC_ENABLED = True
+IPC_ENABLED = False
 # ROBOT ROLE CODES
 ROLE_DEFEND = 0
 ROLE_MID = 1
