@@ -9,17 +9,15 @@ Team members: Ethan Lo, Matt Young, James Talkington.
 - Finite state machine
     - Attacker, defender and midfielder roles
     - Fine tuned strategies over a few weeks of development
-- Inter-robot communications
-    - Achieved through inter-process communication (IPC) over TCP using Python's `multiprocessing.connection` module
-        - Cannot mount an additional receiver to the Webots robot - hence this setup
-    - Used to achieve role switching
-    - [Confirmed to be legal](https://github.com/RoboCupJuniorTC/rcj-soccer-sim/issues/29#issuecomment-760452442) in the
-    February 2021 competition (Please check the rules for each individual competition, we take no responsibility for compliance
-    with future rule changes!)
 - Ball velocity estimation
 - Ball position prediction up to 2 seconds in the future
 - Fully modelled tank drive steering
 - Efficient, circular orbit
+
+### Unfinished features
+- Inter-robot communication via Python's `multiprocessing.connection`
+    - We found this to be too unstable and for whatever reason messages were not getting through. We decided to scrap
+    using this for the competition.
 
 ## Licence
 All code written by us is released under the Mozilla Public License v2.0, see LICENSE.txt.
@@ -37,6 +35,5 @@ Some things we wanted to add but didn't get time to do (might be worth implement
 
 - Wall awareness (planning to avoid hitting walls)
 - Robot awareness (planning to drive around our teammates)
-- 
 
 If you have any questions or comments, feel free to open an issue on this repo. Thanks, and have fun.

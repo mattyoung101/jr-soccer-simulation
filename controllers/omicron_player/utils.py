@@ -1,3 +1,10 @@
+# This file is part of Team Omicron in RoboCup Jr 2021 Soccer Simulation.
+# Copyright (c) 2021 Ethan Lo & Matt Young. All rights reserved.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
 # Contains various utilities for Omicron agent
 from math import atan2, sqrt, pi, copysign, ceil
 from fsm import RobotState
