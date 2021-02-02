@@ -1,3 +1,10 @@
+# This file is part of Team Omicron in RoboCup Jr 2021 Soccer Simulation.
+# Copyright (c) 2021 Ethan Lo & Matt Young. All rights reserved.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
 # Contains implementation of FSM code
 from fsm import RobotState, StateMachine, FSMState
 from utils import move_to_point, kite_point, sign, log, calc_motors, smallest_angle_between, predict_object, predict_time_func
@@ -18,7 +25,7 @@ SIDE_THRESH = 0.5
 
 CHASE_TO_CIRCLE = 0.25 # TODO GIVE THESE LESS SHITTY NAMES
 CIRCLE_TO_CHASE = 0.3
-CIRCLE_OFFSET = 0.2
+CIRCLE_OFFSET = 0.1
 FORWARD_ANGLE_ENTER = 0.4
 FORWARD_ANGLE_EXIT = 0.8
 AIM_TO_CIRCLE = 0.5

@@ -1,3 +1,10 @@
+# This file is part of Team Omicron in RoboCup Jr 2021 Soccer Simulation.
+# Copyright (c) 2021 Ethan Lo & Matt Young. All rights reserved.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# 
 # Inter-robot communicaton by using IPC over a local TCP socket
 # Legality: Should be OK, however I can only guarantee this for the Feb 2021 RoboCup Jr competition.
 # You should verify legality for any future comps. We cannot be held liable if you use this code in future and do not
