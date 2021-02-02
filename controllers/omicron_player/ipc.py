@@ -4,6 +4,7 @@
 # disable IPC if it becomes illegal!
 # For reference see my issue here: https://github.com/RoboCupJuniorTC/rcj-soccer-sim/issues/29
 
+from random import random
 import sys
 from threading import Thread
 from multiprocessing.connection import Listener, Client, wait
@@ -20,7 +21,7 @@ class IPCStatus(Enum):
     FAILED = 3
 
 class IPCClient():
-    def __init__(self, port: int, event_handler):
+    def __init__(self, port: int, event_handler, agent_id: int):
         """
         Args:
             port (int): port to connect to, domain is set to localhost automatically
@@ -31,6 +32,7 @@ class IPCClient():
         self.status = IPCStatus.DISCONNECTED
         self.event_handler = event_handler
         self.client = None
+        self.agent_id = agent_id
 
     # internal method to handle connecting in async
     def __connect_async(self):
@@ -48,17 +50,25 @@ class IPCClient():
         except Exception as e:
             print(f"[IPCClient] [ERROR] Unable to connect to server: {e}", file=sys.stderr)
 
+    # internal handler function to handle connection verification
+    def __handle_verification(self, msg):
+        if msg["message"] == "ping":
+            incoming_agent = msg["my_id"]
+            print(f"[IPCServer] [INFO] Received ping on {self.agent_id} from robot ID {incoming_agent}")
+            self.transmit({"message": "pong", "my_id": self.agent_id})
+
     # internal method to handle receiving messages from the server in parallel
     def __listen_async(self):
-        print("[IPCClient] [INFO] IPCClient listening started")
+        print(f"[IPCClient] [INFO] IPCClient listening started for {self.agent_id} ")
 
         while self.status == IPCStatus.CONNECTED:
             try:
                 msg = self.client.recv()
-                print(f"[IPCClient] [DEBUG] New message: {msg}")
+                print(f"[IPCClient] [DEBUG] New message on {self.agent_id}: {msg}")
+                self.__handle_verification(msg)
                 self.event_handler(msg)
             except Exception as e:
-                print(f"[IPCClient] Failed to receive from server: {e}")
+                print(f"[IPCClient] Failed to receive from server: {e}", file=sys.stderr)
 
     def transmit(self, message):
         """Send a message to the server. `message` should be a dict."""
@@ -86,11 +96,13 @@ class IPCClient():
         # the thread is a daemon and disconnect() is likely never called
 
 class IPCServer():
-    def __init__(self, port: int, event_handler):
+    def __init__(self, port: int, event_handler, agent_id: int):
         # note: event handler takes the form of event_handler(msg: dict) -> void
         self.port = port
         self.clients = []
         self.event_handler = event_handler
+        self.agent_id = agent_id
+        self.verified_client_ids = []
 
     # internal function to accept all clients in parallel
     # num_clients is the number of clients to expect to connect, it should always be two
@@ -101,7 +113,7 @@ class IPCServer():
         for i in range(num_clients):
             print(f"[IPCServer] [DEBUG] Waiting for client {i}")
             conn = self.listener.accept()
-            print(f"[IPCServer] [DEBUG] Client id {i} has connected")
+            print(f"[IPCServer] [DEBUG] Client ID {i} has connected")
             self.clients.append(conn)
 
         print("======== All clients have connected to IPCServer successfully! ========")
@@ -109,14 +121,32 @@ class IPCServer():
         self.listen_thread.daemon = True
         self.listen_thread.start()
 
+    # internal handler function to handle connection verification
+    def __handle_verification(self, msg):
+        if msg["message"] == "pong":
+            incoming_agent = msg["my_id"]
+            if incoming_agent not in self.verified_client_ids:
+                self.verified_client_ids.append(incoming_agent)
+                print(f"[IPCServer] [INFO] ====== Robot ID {incoming_agent} has responded to ping-pong OK! ======")
+
     # internal function to handle receiving messages from all connected clients
     def __listen(self):
         print("[IPCServer] [INFO] Now listening to client messages")
+
+        # connection verification:
+        # so normally the client would send "ping" to the server, but in this case we want to verify if the clients
+        # have two way connectivity (since we boss them around), so we will send the ping request
+        # send the message multiple times to make sure it gets through
+        for i in range(6):
+            self.transmit({"message": "ping", "my_id": self.agent_id})
+            print(f"[IPCServer] [DEBUG] Transmitting ping #{i}")
+
         while self.clients:
             for conn in wait(self.clients):
                 try:
                     msg = conn.recv()
                     print(f"[IPCServer] [DEBUG] Message from {conn}: {msg}")
+                    self.__handle_verification(msg)
                     self.event_handler(msg)
                 except EOFError:
                     print(f"[IPCServer] [WARN] A client caused an EOFError! Disconnecting it", file=sys.stderr)
@@ -124,7 +154,7 @@ class IPCServer():
 
     def launch(self):
         """Starts the server and waits for clients"""
-        self.listener = Listener(("localhost", self.port), "AF_INET")
+        self.listener = Listener(("localhost", self.port), "AF_INET", 8)
         self.join_thread = Thread(target=self.__accept, args=(2,)) # num_clients = 2
         self.join_thread.daemon = True
         self.join_thread.start()
@@ -132,9 +162,10 @@ class IPCServer():
     def transmit(self, message):
         for client in self.clients:
             try:
+                print(f"Sending message to client {client}: {message}")
                 client.send(message)
             except Exception as e:
-                print(f"[IPCServer] [WARN] Failed to transmit message to client: {e}")
+                print(f"[IPCServer] [WARN] Failed to transmit message to client: {e} (removing!)")
                 self.clients.remove(client)
 
     def terminate(self):
